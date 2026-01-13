@@ -1,5 +1,6 @@
 import { SearchBar } from "../features/search-bar";
 import Link from "next/link";
+import { Suspense } from "react";
 
 export function Header() {
     return (
@@ -9,7 +10,9 @@ export function Header() {
                     CINESEEKER
                 </Link>
                 <div className="flex-1 max-w-xl">
-                    <SearchBar />
+                    <Suspense fallback={<div className="h-10 w-full bg-muted/50 rounded-xl animate-pulse" />}>
+                        <SearchBar />
+                    </Suspense>
                 </div>
                 <div className="w-8 shrink-0" /> {/* Spacer for balance if needed */}
             </div>
