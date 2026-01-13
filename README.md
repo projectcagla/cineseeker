@@ -52,3 +52,4 @@ Türkiye pazarına odaklı, JustWatch tarzı minimal "nerede izlenir?" film keş
 ## Lisans
 
 MIT
+ 
