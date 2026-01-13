@@ -1,36 +1,54 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# CineSeeker
 
-## Getting Started
+Türkiye pazarına odaklı, JustWatch tarzı minimal "nerede izlenir?" film keşif uygulaması.
 
-First, run the development server:
+## Özellikler
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Türkiye Odaklı**: Sadece Türkiye'de erişilebilir (Netflix, Prime, BluTV, Mubi vb.) içerikleri gösterir.
+- **Minimal Tasarım**: Odak sadece film ve izleme linkinde.
+- **Hızlı ve SEO Dostu**: Next.js App Router ve SSR.
+- **Akıllı Arama**: Türkçe ve Orijinal isimle arama.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Teknoloji Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- Next.js 15 (App Router)
+- TypeScript
+- TailwindCSS
+- TMDB API
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Kurulum
 
-## Learn More
+1. Repoyu klonlayın:
+   ```bash
+   git clone <repo-url>
+   cd cineseeker
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Bağımlılıkları yükleyin:
+   ```bash
+   npm install
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. Çevre değişkenlerini ayarlayın:
+   `.env.local` dosyası oluşturun ve TMDB API Key ekleyin.
+   ```env
+   TMDB_API_KEY=your_tmdb_api_key_here
+   ```
+   *Key almak için: [TheMovieDB API](https://www.themoviedb.org/documentation/api)*
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. Geliştirme sunucusunu başlatın:
+   ```bash
+   npm run dev
+   ```
 
-## Deploy on Vercel
+## Kullanılan API Endpoint'leri
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `/discover/movie`: Popüler ve yeni filmler (watch_region=TR filtresi ile).
+- `/movie/{id}`: Film detayları.
+- `/movie/{id}/watch/providers`: Türkiye izleme seçenekleri.
+- `/person/{id}`: Yönetmen/Oyuncu detayları ve filmografisi.
+- `/search/movie`: Film arama.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Lisans
+
+MIT
