@@ -1,8 +1,21 @@
 import { Movie, MovieDetail, Person, TMDBResponse, WatchProviders, WatchProvidersResult } from "@/types";
+import { getCloudflareContext } from "@opennextjs/cloudflare";
 import pLimit from "p-limit";
 
-const TMDB_API_KEY = process.env.TMDB_API_KEY;
 const BASE_URL = "https://api.themoviedb.org/3";
+
+export function getTMDBApiKey(): string {
+    try {
+        const { env } = getCloudflareContext();
+        const cfEnv = env as unknown as { TMDB_API_KEY?: string };
+        if (cfEnv && typeof cfEnv.TMDB_API_KEY === "string") {
+            return cfEnv.TMDB_API_KEY.trim();
+        }
+    } catch {
+        // Fallback for build time, SSG, or local node environment
+    }
+    return (process.env.TMDB_API_KEY || "").trim();
+}
 
 export class TMDBNotFoundError extends Error {
     constructor(path: string) {
@@ -20,14 +33,10 @@ export class TMDBUpstreamError extends Error {
     }
 }
 
-if (!TMDB_API_KEY || TMDB_API_KEY === "your_v3_api_key_here") {
-    console.warn("TMDB_API_KEY is missing or using placeholder in environment variables.");
-}
-
 const limit = pLimit(10); // Concurrency limit for parallel requests
 
 async function fetchTMDB<T>(path: string, params: Record<string, string> = {}): Promise<T> {
-    const apiKey = TMDB_API_KEY?.trim() || "";
+    const apiKey = getTMDBApiKey();
 
     const headers: Record<string, string> = {
         "Content-Type": "application/json",
@@ -87,7 +96,8 @@ export async function getTrendingMovies(): Promise<TMDBResponse<Movie>> {
             return { page: 1, results: [], total_pages: 0, total_results: 0 };
         }
         // If placeholder key or offline during build, return empty response gracefully
-        if (!TMDB_API_KEY || TMDB_API_KEY === "your_v3_api_key_here") {
+        const key = getTMDBApiKey();
+        if (!key || key === "your_v3_api_key_here") {
             return { page: 1, results: [], total_pages: 0, total_results: 0 };
         }
         throw error;
@@ -114,7 +124,8 @@ export async function getNewInTr(): Promise<TMDBResponse<Movie>> {
         if (error instanceof TMDBNotFoundError) {
             return { page: 1, results: [], total_pages: 0, total_results: 0 };
         }
-        if (!TMDB_API_KEY || TMDB_API_KEY === "your_v3_api_key_here") {
+        const key = getTMDBApiKey();
+        if (!key || key === "your_v3_api_key_here") {
             return { page: 1, results: [], total_pages: 0, total_results: 0 };
         }
         throw error;
