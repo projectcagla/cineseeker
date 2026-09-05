@@ -1,10 +1,10 @@
 import { ProviderBadge } from "@/components/features/provider-badge";
-import { getMovieDetails, getMovieProviders } from "@/lib/tmdb";
-import { WatchProviders, Provider } from "@/types";
+import { getMovieDetails, getMovieProviders, TMDBNotFoundError } from "@/lib/tmdb";
+import { MovieDetail, Provider } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Star, Clock, Calendar } from "lucide-react";
+import { Star, Clock, Calendar, AlertCircle } from "lucide-react";
 
 function ProviderSection({ title, providers }: { title: string; providers?: Provider[] }) {
     if (!providers || providers.length === 0) return null;
@@ -25,37 +25,55 @@ function ProviderSection({ title, providers }: { title: string; providers?: Prov
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
-    const movie = await getMovieDetails(id).catch(() => null);
-    if (!movie) return { title: 'Film Bulunamadı' };
-
-    return {
-        title: `${movie.title} - Nerede İzlenir?`,
-        description: movie.overview.slice(0, 160),
-        openGraph: {
-            images: movie.backdrop_path ? [`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`] : [],
-        }
-    };
+    try {
+        const movie = await getMovieDetails(id);
+        return {
+            title: `${movie.title} - Nerede İzlenir?`,
+            description: movie.overview.slice(0, 160),
+            openGraph: {
+                images: movie.backdrop_path ? [`https://image.tmdb.org/t/p/w1280${movie.backdrop_path}`] : [],
+            }
+        };
+    } catch {
+        return { title: 'Film Detayı | CineSeeker' };
+    }
 }
 
 export default async function MoviePage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
 
-    // Parallel fetch details and providers
-    const [movie, providers] = await Promise.all([
-        getMovieDetails(id).catch(() => null),
-        getMovieProviders(id),
-    ]);
+    // Parallel fetch details and providers with proper error isolation
+    let movie: MovieDetail;
+    try {
+        movie = await getMovieDetails(id);
+    } catch (error) {
+        if (error instanceof TMDBNotFoundError) {
+            notFound();
+        }
+        // P0.2 FIX: Upstream error (TMDB is down, 500, network error) must NOT turn into a 404!
+        return (
+            <div className="container mx-auto px-4 py-20 text-center space-y-4">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-destructive/10 text-destructive mb-2">
+                    <AlertCircle className="w-6 h-6" />
+                </div>
+                <h1 className="text-2xl font-bold">Film Bilgileri Alınamadı</h1>
+                <p className="text-muted-foreground max-w-md mx-auto">
+                    Film veritabanına bağlanırken geçici bir sorun oluştu. Bu bir &quot;bulunamadı&quot; hatası değildir. Lütfen kısa süre sonra tekrar deneyin.
+                </p>
+                <div className="pt-4">
+                    <Link href="/" className="inline-flex items-center px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium transition-colors">
+                        Ana Sayfaya Dön
+                    </Link>
+                </div>
+            </div>
+        );
+    }
 
-    if (!movie) notFound();
+    // P0.3 FIX: Safe provider result fetch that never crashes the movie page
+    const providersResult = await getMovieProviders(id);
 
     const director = movie.credits?.crew.find(c => c.job === "Director");
     const cast = movie.credits?.cast.slice(0, 10) || [];
-
-    const hasProviders = providers && (
-        (providers.flatrate?.length || 0) > 0 ||
-        (providers.rent?.length || 0) > 0 ||
-        (providers.buy?.length || 0) > 0
-    );
 
     return (
         <div className="space-y-12 pb-20">
@@ -79,7 +97,11 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                         <div className="flex flex-col md:flex-row gap-8 items-end">
                             {/* Poster */}
                             <div className="relative w-32 md:w-48 aspect-[2/3] rounded-lg overflow-hidden shrink-0 border-2 border-white/10 shadow-2xl hidden md:block">
-                                <Image src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} fill className="object-cover" />
+                                {movie.poster_path ? (
+                                    <Image src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`} alt={movie.title} fill className="object-cover" />
+                                ) : (
+                                    <div className="w-full h-full bg-muted flex items-center justify-center text-muted-foreground">Afiş Yok</div>
+                                )}
                             </div>
 
                             {/* Text Info */}
@@ -107,7 +129,7 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                                             <span>{Math.floor(movie.runtime / 60)}s {movie.runtime % 60}dk</span>
                                         </div>
                                     )}
-                                    {movie.genres.map(g => (
+                                    {movie.genres?.map(g => (
                                         <span key={g.id} className="bg-white/10 px-2 py-0.5 rounded text-xs">{g.name}</span>
                                     ))}
                                 </div>
@@ -124,15 +146,24 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                     <div className="bg-card rounded-2xl p-6 border border-white/5 space-y-6">
                         <h2 className="text-xl font-bold border-b border-white/5 pb-4">Nerede İzlenir?</h2>
 
-                        {hasProviders ? (
+                        {providersResult.status === "success" && (
                             <div className="space-y-8">
-                                <ProviderSection title="Yayın Platformları (Abonelik)" providers={providers?.flatrate} />
-                                <ProviderSection title="Kirala" providers={providers?.rent} />
-                                <ProviderSection title="Satın Al" providers={providers?.buy} />
+                                <ProviderSection title="Yayın Platformları (Abonelik)" providers={providersResult.data.flatrate} />
+                                <ProviderSection title="Kirala" providers={providersResult.data.rent} />
+                                <ProviderSection title="Satın Al" providers={providersResult.data.buy} />
                             </div>
-                        ) : (
+                        )}
+
+                        {providersResult.status === "empty" && (
                             <div className="py-4 text-muted-foreground">
                                 Bu film için Türkiye&apos;de erişilebilir bir dijital platform bulunamadı.
+                            </div>
+                        )}
+
+                        {providersResult.status === "error" && (
+                            <div className="py-4 px-4 bg-amber-500/10 border border-amber-500/20 rounded-xl text-amber-300 text-sm flex items-center gap-2">
+                                <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+                                <span>Yayın platformu bilgileri geçici olarak alınamadı.</span>
                             </div>
                         )}
                     </div>
