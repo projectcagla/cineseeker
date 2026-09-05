@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cineseeker",
+  "main": ".open-next/worker.js",
+  "compatibility_date": "2025-02-14",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": ".open-next/assets"
+  },
+  "triggers": {
+    "crons": [
+      "0 3 * * *"
+    ]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "cineseeker-db",
+      "database_id": "cineseeker-d1-prod-id",
+      "migrations_dir": "drizzle/migrations"
+    }
+  ],
+  "env": {
+    "preview": {
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "database_name": "cineseeker-db-preview",
+          "database_id": "cineseeker-d1-preview-id",
+          "migrations_dir": "drizzle/migrations"
+        }
+      ]
+    }
+  }
+}

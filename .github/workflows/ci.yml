@@ -1,0 +1,57 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - feat/**
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint, Test & Build Verification
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: TypeScript Typecheck
+        run: npx tsc --noEmit
+
+      - name: ESLint Code Quality
+        run: npm run lint
+
+      - name: Vitest Unit Tests
+        run: npm run test
+
+      - name: Secret Leak Audit
+        run: |
+          echo "Scanning for accidental committed secret files..."
+          if [ -f .env.local ] || [ -f .dev.vars ]; then
+            echo "ERROR: Local secret file committed to repository!"
+            exit 1
+          fi
+          echo "Secret audit passed."
+
+      - name: Build Cloudflare Worker App
+        env:
+          TMDB_API_KEY: "dummy_ci_build_key_for_static_gen"
+          BETTER_AUTH_SECRET: "dummy_ci_better_auth_secret_minimum_32_chars_long"
+          BETTER_AUTH_URL: "http://localhost:3000"
+        run: npm run build:worker

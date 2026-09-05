@@ -1,4 +1,5 @@
 import { SearchBar } from "../features/search-bar";
+import { UserNav } from "./user-nav";
 import Link from "next/link";
 import { Suspense } from "react";
 
@@ -14,7 +15,7 @@ export function Header() {
                         <SearchBar />
                     </Suspense>
                 </div>
-                <div className="w-8 shrink-0" /> {/* Spacer for balance if needed */}
+                <UserNav />
             </div>
         </header>
     );
