@@ -1,4 +1,4 @@
-import { Movie, MovieDetail, Person, TMDBResponse, WatchProviders, WatchProvidersResult } from "@/types";
+import { Movie, MovieDetail, Person, Provider, TMDBResponse, WatchProviders, WatchProvidersResult } from "@/types";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import pLimit from "p-limit";
 
@@ -35,7 +35,7 @@ export class TMDBUpstreamError extends Error {
 
 const limit = pLimit(10); // Concurrency limit for parallel requests
 
-async function fetchTMDB<T>(path: string, params: Record<string, string> = {}): Promise<T> {
+export async function fetchTMDB<T>(path: string, params: Record<string, string> = {}): Promise<T> {
     const apiKey = getTMDBApiKey();
 
     const headers: Record<string, string> = {
@@ -189,4 +189,16 @@ export async function bg_augmentWithProviders(movies: Movie[]) {
         )
     );
     return enriched;
+}
+
+export async function getAvailableProviders(region: string = "TR"): Promise<Provider[]> {
+    try {
+        const data = await fetchTMDB<{ results: Provider[] }>("/watch/providers/movie", {
+            watch_region: region,
+        });
+        return data?.results || [];
+    } catch (error) {
+        console.error("[TMDB] Error fetching available providers:", error instanceof Error ? error.message : "Unknown error");
+        return [];
+    }
 }

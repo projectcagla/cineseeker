@@ -1,23 +1,51 @@
 import { ProviderBadge } from "@/components/features/provider-badge";
+import { WatchlistButton } from "@/components/features/watchlist-button";
 import { getMovieDetails, getMovieProviders, TMDBNotFoundError } from "@/lib/tmdb";
+import { getMovieWatchlistState, WatchlistStatus } from "@/app/actions/watchlist";
+import { getUserSubscribedProviders } from "@/app/actions/providers";
 import { MovieDetail, Provider } from "@/types";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Star, Clock, Calendar, AlertCircle } from "lucide-react";
 
-function ProviderSection({ title, providers }: { title: string; providers?: Provider[] }) {
+function ProviderSection({
+    title,
+    providers,
+    userSubscribedIds = [],
+}: {
+    title: string;
+    providers?: Provider[];
+    userSubscribedIds?: number[];
+}) {
     if (!providers || providers.length === 0) return null;
     return (
         <div className="space-y-3">
             <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">{title}</h3>
-            <div className="flex flex-wrap gap-4">
-                {providers.map((p) => (
-                    <div key={p.provider_id} className="flex items-center gap-2 bg-muted/30 pr-4 rounded-full border border-white/5 hover:bg-muted/50 transition-colors cursor-default">
-                        <ProviderBadge provider={p} size={40} />
-                        <span className="text-sm font-medium">{p.provider_name}</span>
-                    </div>
-                ))}
+            <div className="flex flex-wrap gap-3">
+                {providers.map((p) => {
+                    const isSubscribed = userSubscribedIds.includes(p.provider_id);
+                    return (
+                        <div
+                            key={p.provider_id}
+                            className={`flex items-center gap-2 pr-4 rounded-full border transition-colors cursor-default ${
+                                isSubscribed
+                                    ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                                    : "bg-muted/30 border-white/5 hover:bg-muted/50 text-foreground"
+                            }`}
+                        >
+                            <ProviderBadge provider={p} size={40} isSubscribed={isSubscribed} />
+                            <div className="flex items-center gap-1.5">
+                                <span className="text-sm font-medium">{p.provider_name}</span>
+                                {isSubscribed && (
+                                    <span className="text-[10px] bg-emerald-500/20 text-emerald-400 font-semibold px-2 py-0.5 rounded-full">
+                                        Abonesiniz
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
@@ -69,9 +97,14 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
         );
     }
 
-    // P0.3 FIX: Safe provider result fetch that never crashes the movie page
-    const providersResult = await getMovieProviders(id);
+    // Fetch providers, user watchlist state, and subscriptions in parallel
+    const [providersResult, watchlistState, userSubs] = await Promise.all([
+        getMovieProviders(id),
+        getMovieWatchlistState(Number(id)),
+        getUserSubscribedProviders(),
+    ]);
 
+    const userSubscribedIds = userSubs.map((s) => s.providerId);
     const director = movie.credits?.crew.find(c => c.job === "Director");
     const cast = movie.credits?.cast.slice(0, 10) || [];
 
@@ -133,6 +166,20 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
                                         <span key={g.id} className="bg-white/10 px-2 py-0.5 rounded text-xs">{g.name}</span>
                                     ))}
                                 </div>
+
+                                {/* Watchlist Action Button */}
+                                <div className="pt-2">
+                                    <WatchlistButton
+                                        movieId={movie.id}
+                                        title={movie.title}
+                                        posterPath={movie.poster_path}
+                                        voteAverage={movie.vote_average ? movie.vote_average.toString() : null}
+                                        releaseYear={movie.release_date ? new Date(movie.release_date).getFullYear().toString() : null}
+                                        initialStatus={watchlistState.item?.status as WatchlistStatus}
+                                        initialRating={watchlistState.item?.rating}
+                                        variant="full"
+                                    />
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -148,9 +195,21 @@ export default async function MoviePage({ params }: { params: Promise<{ id: stri
 
                         {providersResult.status === "success" && (
                             <div className="space-y-8">
-                                <ProviderSection title="Yayın Platformları (Abonelik)" providers={providersResult.data.flatrate} />
-                                <ProviderSection title="Kirala" providers={providersResult.data.rent} />
-                                <ProviderSection title="Satın Al" providers={providersResult.data.buy} />
+                                <ProviderSection
+                                    title="Yayın Platformları (Abonelik)"
+                                    providers={providersResult.data.flatrate}
+                                    userSubscribedIds={userSubscribedIds}
+                                />
+                                <ProviderSection
+                                    title="Kirala"
+                                    providers={providersResult.data.rent}
+                                    userSubscribedIds={userSubscribedIds}
+                                />
+                                <ProviderSection
+                                    title="Satın Al"
+                                    providers={providersResult.data.buy}
+                                    userSubscribedIds={userSubscribedIds}
+                                />
                             </div>
                         )}
 
