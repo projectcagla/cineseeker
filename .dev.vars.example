@@ -7,3 +7,8 @@ BETTER_AUTH_URL=http://localhost:3000
 
 # Resend API Key for Email Delivery
 RESEND_API_KEY=re_your_resend_api_key_here
+
+# Verified Resend sender and canonical server origin
+RESEND_FROM_EMAIL=CineSeeker <noreply@your-verified-domain.com>
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+CRON_SECRET=replace-with-a-separate-random-secret

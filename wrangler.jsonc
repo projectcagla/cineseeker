@@ -10,11 +10,6 @@
     "binding": "ASSETS",
     "directory": ".open-next/assets"
   },
-  "triggers": {
-    "crons": [
-      "0 3 * * *"
-    ]
-  },
   "d1_databases": [
     {
       "binding": "DB",

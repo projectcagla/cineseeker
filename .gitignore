@@ -45,3 +45,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Native iOS: local configuration, signing and build products
+ios/Config/Config.xcconfig
+ios/build/
+ios/DerivedData/
+ios/vendor/
+ios/.bundle/
+*.xcuserstate
+xcuserdata/
+*.ipa
+*.dSYM.zip
+*.p12
+*.mobileprovision
+*.p8
+ios/fastlane/report.xml
+ios/fastlane/README.md

@@ -13,7 +13,9 @@ function getAuthSecret(): string {
     } catch {
         // Fallback
     }
-    return process.env.BETTER_AUTH_SECRET || "development-secret-must-be-at-least-32-characters-long";
+    const secret = process.env.BETTER_AUTH_SECRET;
+    if (!secret || secret.length < 32) throw new Error("BETTER_AUTH_SECRET must be configured with at least 32 characters.");
+    return secret;
 }
 
 function getAppUrl(): string {
@@ -55,6 +57,7 @@ export function createAuth(d1Instance?: D1Database) {
             },
             autoSignInAfterVerification: true,
         },
+        user: { changeEmail: { enabled: true, updateEmailWithoutVerification: false } },
         session: {
             cookieCache: {
                 enabled: true,

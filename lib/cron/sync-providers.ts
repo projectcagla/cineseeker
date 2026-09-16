@@ -32,8 +32,9 @@ export async function syncProviderAvailability(customDb?: AppDatabase): Promise<
     };
 
     try {
-        // Fetch up to 25 popular / trending titles in Turkey
-        const discoverData = await fetchTMDB<{ results: Movie[] }>("/discover/movie", {
+        // Sample both film and TV catalogs in Turkey; this is not a complete catalog crawl.
+        for (const mediaType of ["movie", "tv"] as const) {
+        const discoverData = await fetchTMDB<{ results: (Movie & { name?: string })[] }>(`/discover/${mediaType}`, {
             region: "TR",
             sort_by: "popularity.desc",
             watch_region: "TR",
@@ -42,14 +43,14 @@ export async function syncProviderAvailability(customDb?: AppDatabase): Promise<
         });
 
         const movies = (discoverData?.results || []).slice(0, 25);
-        result.scannedMovies = movies.length;
+        result.scannedMovies += movies.length;
 
         const now = new Date();
 
         for (const movie of movies) {
             try {
                 const providerData = await fetchTMDB<{ results: Record<string, WatchProviders> }>(
-                    `/movie/${movie.id}/watch/providers`
+                    `/${mediaType}/${movie.id}/watch/providers`
                 );
 
                 const trProviders = providerData?.results?.["TR"];
@@ -72,7 +73,7 @@ export async function syncProviderAvailability(customDb?: AppDatabase): Promise<
                             .where(
                                 and(
                                     eq(availabilitySnapshot.tmdbId, movie.id),
-                                    eq(availabilitySnapshot.mediaType, "movie"),
+                                    eq(availabilitySnapshot.mediaType, mediaType),
                                     eq(availabilitySnapshot.region, "TR"),
                                     eq(availabilitySnapshot.providerId, prov.provider_id),
                                     eq(availabilitySnapshot.monetization, type)
@@ -87,7 +88,7 @@ export async function syncProviderAvailability(customDb?: AppDatabase): Promise<
                                 .where(
                                     and(
                                         eq(availabilitySnapshot.tmdbId, movie.id),
-                                        eq(availabilitySnapshot.mediaType, "movie"),
+                                        eq(availabilitySnapshot.mediaType, mediaType),
                                         eq(availabilitySnapshot.region, "TR"),
                                         eq(availabilitySnapshot.providerId, prov.provider_id),
                                         eq(availabilitySnapshot.monetization, type)
@@ -97,11 +98,11 @@ export async function syncProviderAvailability(customDb?: AppDatabase): Promise<
                         } else {
                             await db.insert(availabilitySnapshot).values({
                                 tmdbId: movie.id,
-                                mediaType: "movie",
+                                mediaType,
                                 region: "TR",
                                 providerId: prov.provider_id,
                                 monetization: type,
-                                title: movie.title,
+                                title: movie.title || movie.name || "İsimsiz içerik",
                                 posterPath: movie.poster_path || null,
                                 firstSeenAt: now,
                                 lastSeenAt: now,
@@ -114,6 +115,7 @@ export async function syncProviderAvailability(customDb?: AppDatabase): Promise<
                 const msg = `Movie ${movie.id} sync failed: ${err instanceof Error ? err.message : String(err)}`;
                 result.errors.push(msg);
             }
+        }
         }
     } catch (err) {
         result.errors.push(`Discovery fetch failed: ${err instanceof Error ? err.message : String(err)}`);

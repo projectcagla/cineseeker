@@ -1,0 +1,21 @@
+name: Observe Turkish streaming availability
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  sync:
+    if: vars.API_BASE_URL != ''
+    runs-on: ubuntu-latest
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Refresh observed availability
+        run: |
+          test -n "$CRON_SECRET"
+          curl --fail-with-body --max-time 300 --request POST \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "${API_BASE_URL%/}/api/cron/sync"

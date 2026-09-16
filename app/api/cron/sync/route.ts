@@ -13,9 +13,9 @@ export async function POST(request: NextRequest) {
 }
 
 async function handleSync(request: NextRequest) {
-    // Check authorization header or query param
+    // Use only the authorization header so secrets never enter URL logs.
     const authHeader = request.headers.get("authorization");
-    const token = authHeader?.replace("Bearer ", "") || request.nextUrl.searchParams.get("secret");
+    const token = authHeader?.replace("Bearer ", "");
 
     let expectedSecret: string | undefined;
     try {
@@ -25,8 +25,7 @@ async function handleSync(request: NextRequest) {
         expectedSecret = process.env.CRON_SECRET;
     }
 
-    // In production with CRON_SECRET configured, require exact match
-    if (expectedSecret && token !== expectedSecret) {
+    if (!expectedSecret || token !== expectedSecret) {
         return NextResponse.json({ error: "Yetkisiz erişim: CRON_SECRET geçersiz." }, { status: 401 });
     }
 

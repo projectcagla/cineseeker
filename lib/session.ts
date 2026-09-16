@@ -7,6 +7,7 @@ export async function getServerSession() {
         const reqHeaders = await headers();
         const session = await auth.api.getSession({
             headers: reqHeaders,
+            query: { disableCookieCache: true },
         });
         return session;
     } catch {

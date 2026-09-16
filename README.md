@@ -53,3 +53,8 @@ Türkiye pazarına odaklı, JustWatch tarzı minimal "nerede izlenir?" film keş
 
 MIT
  
+
+
+## Native iOS uygulaması
+
+Swift 6, SwiftUI ve SwiftData ile iOS 17+ uygulaması `ios/CineSeeker.xcodeproj` içindedir. [iOS kurulum, mimari ve TestFlight rehberi](ios/README.md) · [Canlı sunucu hazırlığı](ios/BACKEND.md). API anahtarları iOS paketine konmaz; mevcut Cloudflare sunucusundan erişilir.

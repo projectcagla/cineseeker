@@ -1,0 +1,81 @@
+require "uri"
+require "shellwords"
+def required(name)
+  value = ENV[name]
+  UI.user_error!("Missing #{name}") if value.nil? || value.strip.empty?
+  value
+end
+
+def connect_key
+  app_store_connect_api_key(
+    key_id: required("APP_STORE_CONNECT_API_KEY_ID"),
+    issuer_id: required("APP_STORE_CONNECT_ISSUER_ID"),
+    key_content: required("APP_STORE_CONNECT_API_KEY_KEY"),
+    is_key_content_base64: true,
+    duration: 1200,
+    in_house: false
+  )
+end
+
+def signing(key, readonly:)
+  match(
+    type: "appstore", readonly: readonly, api_key: key,
+    app_identifier: ENV.fetch("APP_IDENTIFIER", "com.projectcagla.cineseeker"),
+    team_id: required("APPLE_TEAM_ID"),
+    git_url: required("MATCH_GIT_URL"),
+    git_basic_authorization: ENV["MATCH_GIT_BASIC_AUTHORIZATION"],
+    keychain_name: ENV["MATCH_KEYCHAIN_NAME"],
+    keychain_password: ENV["MATCH_KEYCHAIN_PASSWORD"]
+  )
+end
+
+def write_config
+  address = required("API_BASE_URL")
+  uri = URI.parse(address)
+  UI.user_error!("API_BASE_URL must be an HTTPS origin, without credentials or a path") unless uri.scheme == "https" && uri.host && !uri.userinfo && ["", "/"].include?(uri.path) && !uri.query && !uri.fragment
+  bundle = ENV.fetch("APP_IDENTIFIER", "com.projectcagla.cineseeker")
+  team = required("APPLE_TEAM_ID")
+  UI.user_error!("Invalid bundle or team identifier") unless bundle.match?(/\A[A-Za-z0-9.-]+\z/) && team.match?(/\A[A-Z0-9]{10}\z/)
+  File.write("../Config/Config.xcconfig", "SLASH = /\nAPI_BASE_URL = #{address.sub('https://', 'https:$(SLASH)/')}\nDEVELOPMENT_TEAM = #{team}\nPRODUCT_BUNDLE_IDENTIFIER = #{bundle}\n")
+end
+
+def ensure_backend
+  require "net/http"
+  uri = URI.join(required("API_BASE_URL"), "/api/mobile/catalog?action=genres&media=movie")
+  response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 15, read_timeout: 30) { |http| http.get(uri.request_uri) }
+  UI.user_error!("Deploy and configure the CineSeeker backend before shipping") unless response.code == "200" && JSON.parse(response.body).fetch("genres").any?
+end
+
+default_platform(:ios)
+platform :ios do
+  desc "Create signing assets once in a private encrypted match repository"
+  lane :prepare_signing do
+    required("MATCH_PASSWORD")
+    signing(connect_key, readonly: false)
+  end
+
+  desc "Archive Release and upload a signed build to TestFlight"
+  lane :beta do
+    required("MATCH_PASSWORD")
+    write_config
+    ensure_backend
+    key = connect_key
+    setup_ci if ENV["CI"]
+    signing(key, readonly: true)
+    bundle = ENV.fetch("APP_IDENTIFIER", "com.projectcagla.cineseeker")
+    next_build = latest_testflight_build_number(api_key: key, app_identifier: bundle, initial_build_number: 0) + 1
+    increment_build_number(build_number: next_build, xcodeproj: "CineSeeker.xcodeproj")
+    update_code_signing_settings(
+      use_automatic_signing: false, path: "CineSeeker.xcodeproj",
+      team_id: required("APPLE_TEAM_ID"), targets: ["CineSeeker"],
+      build_configurations: ["Release"], code_sign_identity: "Apple Distribution",
+      profile_name: "match AppStore #{bundle}"
+    )
+    build_app(
+      project: "CineSeeker.xcodeproj", scheme: "CineSeeker", configuration: "Release",
+      clean: true, export_method: "app-store", output_directory: "build", output_name: "CineSeeker.ipa",
+      export_options: { provisioningProfiles: { bundle => "match AppStore #{bundle}" } }
+    )
+    upload_to_testflight(api_key: key, app_identifier: bundle, ipa: "build/CineSeeker.ipa", skip_waiting_for_build_processing: false)
+  end
+end

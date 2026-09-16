@@ -2,11 +2,14 @@ import { getServerSession } from "@/lib/session";
 import { getDb } from "@/lib/db";
 import { user } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
+export async function POST(request: NextRequest) {
+    if (request.headers.get("origin") !== request.nextUrl.origin) {
+        return NextResponse.json({ error: "Geçersiz kaynak." }, { status: 403 });
+    }
     const session = await getServerSession();
     if (!session) {
         return NextResponse.json({ error: "Yetkisiz işlem. Giriş yapmalısınız." }, { status: 401 });

@@ -1,0 +1,6 @@
+// Copy to Config.xcconfig. This file is excluded from Git.
+// Use /$(SLASH)/ to prevent xcconfig interpreting // as a comment.
+SLASH = /
+API_BASE_URL = https:$(SLASH)/your-deployed-cineseeker-domain
+DEVELOPMENT_TEAM = YOUR_APPLE_TEAM_ID
+PRODUCT_BUNDLE_IDENTIFIER = com.projectcagla.cineseeker
