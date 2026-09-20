@@ -48,11 +48,11 @@ struct DiscoverView: View {
                                 }.scrollTargetLayout()
                             }.scrollTargetBehavior(.viewAligned)
                         }
-                        if model.mode == .arrivals { Text("Son 30 günde taramalarda ilk kez görülen yayınlar. İlk tarama başlangıç kataloğudur; kesin prömiyer tarihi değildir.").font(.caption).foregroundStyle(.secondary) }
+                        if model.mode == .arrivals { Text("Son 6 ayda çıkan, Türkiye’de yayın seçeneği bulunan film ve diziler. Platforma eklenme tarihini göstermez.").font(.caption).foregroundStyle(.secondary) }
                         if let error = model.error { StatusPanel(title: "Bağlantı kurulamadı", message: error, icon: "wifi.exclamationmark") { Task { await reload() } } }
                         MovieGrid(movies: model.movies)
                         if model.loading { ProgressView("Hikâyeler yükleniyor…").frame(maxWidth: .infinity).padding() }
-                        else if model.movies.isEmpty && model.error == nil { StatusPanel(title: "Henüz içerik yok", message: model.mode == .arrivals ? "Yeni platform kayıtları sunucu taramalarıyla burada belirecek." : "Filtreleri değiştirerek yeniden deneyebilirsin.") }
+                        else if model.movies.isEmpty && model.error == nil { StatusPanel(title: "Henüz içerik yok", message: model.mode == .arrivals ? "Son 6 ay için Türkiye’de yayın seçeneği bulunan içerik bulunamadı." : "Filtreleri değiştirerek yeniden deneyebilirsin.") }
                         if model.page < model.totalPages && !model.movies.isEmpty { Button("Daha Fazla Göster") { Task { await model.load(providers: storage.selected.map(\.id), more: true) } }.buttonStyle(.bordered).frame(maxWidth: .infinity) }
                     }
                     Text("Yayın verileri: JustWatch · Film ve dizi bilgileri: TMDB").font(.caption2).foregroundStyle(.secondary).frame(maxWidth: .infinity).padding(.vertical)

@@ -25,6 +25,7 @@ import SwiftData
     }
     var provider: Provider? { try? JSONDecoder().decode(Provider.self, from: providerData) }
 }
+// Retained for store compatibility with pre-V1 development builds. V1 never creates or transmits these records.
 @Model final class PendingMutation {
     @Attribute(.unique) var id: UUID
     var owner: String

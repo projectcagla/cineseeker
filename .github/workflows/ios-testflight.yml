@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       upload_testflight:
-        description: 'Upload to TestFlight (requires production backend and signing setup)'
+        description: 'Upload to TestFlight (requires TMDB read token and signing setup)'
         type: boolean
         default: false
 permissions:
@@ -49,7 +49,7 @@ jobs:
       APP_STORE_CONNECT_API_KEY_KEY: ${{ secrets.APP_STORE_CONNECT_API_KEY_KEY }}
       APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
       APP_IDENTIFIER: ${{ vars.APP_IDENTIFIER || 'com.projectcagla.cineseeker' }}
-      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      TMDB_READ_TOKEN: ${{ secrets.TMDB_READ_TOKEN }}
       MATCH_GIT_URL: ${{ secrets.MATCH_GIT_URL }}
       MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
       MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}

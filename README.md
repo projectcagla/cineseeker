@@ -55,6 +55,8 @@ MIT
  
 
 
-## Native iOS uygulaması
+## Native iOS uygulaması — sunucusuz V1
 
-Swift 6, SwiftUI ve SwiftData ile iOS 17+ uygulaması `ios/CineSeeker.xcodeproj` içindedir. [iOS kurulum, mimari ve TestFlight rehberi](ios/README.md) · [Canlı sunucu hazırlığı](ios/BACKEND.md). API anahtarları iOS paketine konmaz; mevcut Cloudflare sunucusundan erişilir.
+Swift 6, SwiftUI ve SwiftData ile iOS 17+ uygulaması `ios/CineSeeker.xcodeproj` içindedir. V1 doğrudan TMDB'ye bağlanır; liste, puan ve tercihler cihazda saklanır. Cloudflare, veritabanı veya e-posta servisi kurmanız gerekmez. Giriş ve cihazlar arası eşitleme V2'ye ertelenmiştir.
+
+[iOS V1 kurulum ve TestFlight rehberi](ios/README.md) · [Doğrulama sonuçları](ios/VALIDATION.md) · [V2 sunucu rehberi](ios/BACKEND.md)

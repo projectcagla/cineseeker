@@ -1,23 +1,17 @@
-# Doğrulama — 16 Eylül 2026
-
-Bu kayıt yerel olarak yapılan kontrolleri ve henüz doğrulanamayan dağıtım adımlarını ayırır.
+# Sunucusuz V1 doğrulaması — 20 Eylül 2026
 
 | Kontrol | Sonuç |
 |---|---|
-| Swift 6 / Debug iOS Simulator derlemesi | Başarılı, Xcode 27.0 (27A266a) |
-| iPhone 17 Pro / iOS 26.5 XCTest | 4 test, 0 hata |
+| Swift 6 / Debug iOS Simulator derlemesi | Başarılı, Xcode 27.0 |
+| iPhone 17 Pro / iOS 26.5 XCTest | 7 test, 0 hata |
 | Release / generic iOS arşivi | Başarılı, CODE_SIGNING_ALLOWED=NO |
-| Simülatörde uygulama başlatma | Başarılı; sunucu kurulmamış durum ekranı görsel olarak kontrol edildi |
-| TypeScript `tsc --noEmit` | Başarılı |
-| ESLint | Başarılı |
-| Vitest | 29 test, 0 hata |
-| OpenNext Cloudflare worker üretim derlemesi | Başarılı |
 | Fastfile Ruby sözdizimi | Başarılı |
+| V1 kaynaklarında özel sunucu/account çağrıları | Yok; katalog TMDB API, görseller TMDB CDN üzerinden |
 
-XCTest kapsamı: film/dizi anahtar ayrımı; SwiftData yeniden açılışında kalıcılık; hesap izolasyonu; puan sınırları ve puanı kaldırma; son aramalar ve JSON dışa aktarma; kalıcı işlem kuyruğu; hesap verisi silinirken misafir verilerinin korunması.
+Test kapsamı: film/dizi kimlik ayrımı; SwiftData yeniden açılışı; puan sınırları; arama geçmişi ve JSON dışa aktarımı; yerel verileri silme; sunucu işlem kuyruğunun oluşmaması; Bearer başlığının sabit TMDB adresine gönderilmesi; key'in URL'ye konmaması; son 180 gün ve TR/platform filtreleri; gerçek repository'nin test taşıyıcısıyla TV ayrıntısı ve Türkiye yayın verisini işlemesi.
 
-Yeni sunucu testleri: katalog parametre sınırları, geçerli ve taze oturum gereksinimi, aynı Origin kontrolü, başka hesaba ait kuyruk işleminin reddi, Türkiye TV yayın seçenekleri, upstream hata ayrımı ve e-posta teslim hata davranışı. Mevcut web testleri de geçer.
+Test ağ yanıtları yalnızca XCTest hedefindedir. Uygulama paketi örnek film kataloğu içermez. TMDB token'ı sağlanmadığı için gerçek TMDB yanıtlarıyla canlı uçtan uca katalog testi yapılmadı. Cloudflare, D1, Resend ve hesap sunucusu V1 için gerekli değildir.
 
-Henüz doğrulanmadı: canlı D1/TMDB/Resend ile uçtan uca hesap ve katalog akışları; imzalı `.ipa`; Apple Developer sertifikası/profili; TestFlight kabulü; GitHub-hosted macos-14 testi ve macos-26 beta lane'i. Canlı sunucu, kayıtlı Bundle ID, Apple üyeliği ve gerekli secrets bu çalışma sırasında mevcut değildi. İmzasız `.xcarchive` App Store'a yüklenebilir bir teslim değildir.
+İmzalı `.ipa`, TestFlight teslimi, GitHub-hosted macos-14/macos-26 çalışmaları, fiziksel cihaz, iOS 17 runtime ve geniş VoiceOver/Dynamic Type kontrolleri henüz doğrulanmadı. İmzasız `.xcarchive` dağıtılabilir bir TestFlight paketi değildir. Apple Developer kimliği ve imzalama secrets gereklidir.
 
-iOS 17 minimum hedefi derleme ayarıyla korunur; bu makinede çalıştırılan runtime iOS 26.5'tir. Fiziksel cihaz, iOS 17 runtime, geniş Dynamic Type/VoiceOver kullanım testi ve gerçek katalogla ekran değerlendirmesi dağıtım öncesi tamamlanmalıdır.
+Web/Cloudflare kodu bu V1 değişikliğinde değiştirilmedi. Önceki 16 Eylül 2026 kontrolünde web TypeScript, ESLint, 29 Vitest testi ve OpenNext üretim derlemesi başarılıydı; bunlar mobil V1 için kurulum gereksinimi değildir.

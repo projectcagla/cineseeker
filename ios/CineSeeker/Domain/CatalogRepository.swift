@@ -7,6 +7,6 @@ protocol CatalogRepository: Sendable {
     func genres(_ media: MediaType) async throws -> [Genre]
 }
 enum FeedMode: String, CaseIterable, Identifiable {
-    case popular = "Yeni & Popüler", mine = "Platformlarım", arrivals = "Yeni Eklenenler"
+    case popular = "Yeni & Popüler", mine = "Platformlarım", arrivals = "Yeni Çıkanlar"
     var id: String { rawValue }
 }

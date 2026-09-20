@@ -10,7 +10,7 @@ struct SubscriptionsView: View {
                 Text("Abone olduğun servisleri seç. Sana ait olanları yeşil rozetle öne çıkaralım.").foregroundStyle(.secondary)
                 if loading { ProgressView("Platformlar yükleniyor…") }
                 if storage.allProviders.isEmpty && !loading {
-                    StatusPanel(title: "Platform kataloğu bekleniyor", message: "Güncel Türkiye platformları sunucu bağlantısı kurulduğunda yüklenir.", icon: "tv") { Task { await refresh() } }
+                    StatusPanel(title: "Platform kataloğu bekleniyor", message: "Güncel Türkiye platformları katalog bağlantısı kurulduğunda yüklenir.", icon: "tv") { Task { await refresh() } }
                 }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 150), spacing: 14)], spacing: 14) {
                     ForEach(storage.allProviders) { provider in

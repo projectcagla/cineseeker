@@ -9,8 +9,6 @@ import Observation
     var allProviders: [Provider] = []
     var recentSearches: [String] = []
     var error: String?
-    var syncMessage: String?
-    private var syncing = false
     init(container: ModelContainer) {
         context = ModelContext(container)
         context.autosaveEnabled = false
@@ -43,28 +41,18 @@ import Observation
     }
     func item(_ movie: Movie) -> SavedTitle? { titles.first { $0.movie?.key == movie.key } }
     func isSubscribed(_ provider: Provider) -> Bool { selected.contains { $0.id == provider.id } }
-    private func enqueue(_ body: [String: Any]) throws {
-        if owner != "guest" { context.insert(PendingMutation(owner: owner, body: try JSONSerialization.data(withJSONObject: body))) }
-    }
     func save(_ movie: Movie, status: WatchStatus, rating: Int? = nil) {
         do {
             guard rating == nil || (1...10).contains(rating!) else { return }
             if let row = item(movie) { row.statusValue = status.rawValue; row.rating = rating; row.updatedAt = Date() }
             else { context.insert(try SavedTitle(owner: owner, movie: movie, status: status, rating: rating)) }
-            let remote = RemoteItem(tmdbId: movie.id, mediaType: movie.kind, title: movie.displayTitle, posterPath: movie.posterPath,
-                                    voteAverage: movie.voteAverage.map(String.init(describing:)), releaseYear: movie.year, status: status, rating: rating)
-            var payload = try JSONSerialization.jsonObject(with: JSONEncoder().encode(remote)) as! [String: Any]
-            payload["rating"] = rating.map { $0 as Any } ?? NSNull()
-            try enqueue(["kind": "save", "item": payload])
             try context.save(); try reload(); HapticManager.selection()
-            Task { await sync() }
         } catch { context.rollback(); self.error = error.localizedDescription; try? reload() }
     }
     func remove(_ movie: Movie) {
         do {
             if let row = item(movie) { context.delete(row) }
-            try enqueue(["kind": "remove", "tmdbId": movie.id, "mediaType": movie.kind.rawValue])
-            try context.save(); try reload(); Task { await sync() }
+            try context.save(); try reload()
         } catch { context.rollback(); self.error = error.localizedDescription; try? reload() }
     }
     func toggle(_ provider: Provider) {
@@ -72,8 +60,7 @@ import Observation
             let rows = try context.fetch(FetchDescriptor<SavedProvider>())
             let row = rows.first { $0.owner == owner && $0.provider?.id == provider.id }
             if let row { context.delete(row) } else { context.insert(try SavedProvider(owner: owner, provider: provider)) }
-            try enqueue(["kind": "provider", "selected": row == nil, "provider": ["providerId": provider.id, "providerName": provider.providerName, "logoPath": provider.logoPath ?? ""]])
-            try context.save(); try reload(); HapticManager.selection(); Task { await sync() }
+            try context.save(); try reload(); HapticManager.selection()
         } catch { context.rollback(); self.error = error.localizedDescription; try? reload() }
     }
     func remember(_ query: String) {
@@ -90,38 +77,12 @@ import Observation
         do { allProviders = try await LiveCatalogRepository().providers(); try storeMetadata(allProviders, key: "providerCatalog") }
         catch { self.error = error.localizedDescription }
     }
-    func sync() async {
-        guard owner != "guest", !syncing else { return }
-        syncing = true
-        let account = owner
-        defer { syncing = false }
-        do {
-            // Drain persisted operations in order; re-read after each await to include edits made during sync.
-            while owner == account {
-                let pending = try context.fetch(FetchDescriptor<PendingMutation>(sortBy: [SortDescriptor(\.createdAt)])).filter { $0.owner == account }
-                guard let operation = pending.first else { break }
-                _ = try await NetworkManager.shared.data(.init(path: "api/mobile/library", method: "POST", body: operation.body, expectedUser: account))
-                guard owner == account else { return }
-                context.delete(operation); try context.save()
-            }
-            let library: RemoteLibrary = try await NetworkManager.shared.request(.init(path: "api/mobile/library", expectedUser: account))
-            guard owner == account else { return }
-            // Never overwrite local edits that arrived while the GET was in flight.
-            let pending = try context.fetch(FetchDescriptor<PendingMutation>()).contains { $0.owner == account }
-            if pending { syncing = false; await sync(); return }
-            for row in try context.fetch(FetchDescriptor<SavedTitle>()) where row.owner == account { context.delete(row) }
-            for row in try context.fetch(FetchDescriptor<SavedProvider>()) where row.owner == account { context.delete(row) }
-            for item in library.watchlist { context.insert(try SavedTitle(owner: account, movie: item.movie, status: item.status, rating: item.rating)) }
-            for provider in library.providers { context.insert(try SavedProvider(owner: account, provider: provider.provider)) }
-            try context.save(); try reload(); syncMessage = nil
-        } catch { context.rollback(); syncMessage = "Değişiklikler cihazınızda. Eşitleme yeniden denenecek: \(error.localizedDescription)" }
-    }
-    func eraseAccount(_ id: String) throws {
-        for row in try context.fetch(FetchDescriptor<SavedTitle>()) where row.owner == id { context.delete(row) }
-        for row in try context.fetch(FetchDescriptor<SavedProvider>()) where row.owner == id { context.delete(row) }
-        for row in try context.fetch(FetchDescriptor<PendingMutation>()) where row.owner == id { context.delete(row) }
-        for row in try context.fetch(FetchDescriptor<LocalMetadata>()) where row.key == "search:\(id)" || row.key == "lastUser" { context.delete(row) }
-        try context.save(); try switchOwner("guest")
+    func resetLocalData() throws {
+        for row in try context.fetch(FetchDescriptor<SavedTitle>()) { context.delete(row) }
+        for row in try context.fetch(FetchDescriptor<SavedProvider>()) { context.delete(row) }
+        for row in try context.fetch(FetchDescriptor<PendingMutation>()) { context.delete(row) }
+        for row in try context.fetch(FetchDescriptor<LocalMetadata>()) where row.key != "providerCatalog" { context.delete(row) }
+        try context.save(); owner = "guest"; recentSearches = []; try reload()
     }
     func localExport() throws -> Data {
         let items = titles.compactMap { row -> RemoteItem? in

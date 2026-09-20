@@ -1,3 +1,7 @@
+# V2 için arşivlenmiş sunucu rehberi
+
+**iOS V1 sunucusuzdur. Bu adımları V1 için uygulamayın.** Güncel kurulum: [V1 rehberi](README.md). Aşağıdaki yapı V2 hesap/eşitleme çalışması için korunmuştur.
+
 # iOS için canlı sunucu
 
 Bu dal Cloudflare D1 ve Better Auth kullanır. Ücretli özel alan adı gerekmez; Cloudflare Workers HTTPS adresi yeterlidir. iOS projesi `API_BASE_URL` ayarlanmadan da derlenir, fakat katalog/hesap sunucusu olmadan çevrimiçi akışlar çalışmaz.

@@ -30,20 +30,22 @@ def signing(key, readonly:)
 end
 
 def write_config
-  address = required("API_BASE_URL")
-  uri = URI.parse(address)
-  UI.user_error!("API_BASE_URL must be an HTTPS origin, without credentials or a path") unless uri.scheme == "https" && uri.host && !uri.userinfo && ["", "/"].include?(uri.path) && !uri.query && !uri.fragment
+  token = required("TMDB_READ_TOKEN")
+  UI.user_error!("Use a TMDB API Read Access Token") unless token.match?(/\A[A-Za-z0-9_.-]+\z/) && token.length > 40
   bundle = ENV.fetch("APP_IDENTIFIER", "com.projectcagla.cineseeker")
   team = required("APPLE_TEAM_ID")
   UI.user_error!("Invalid bundle or team identifier") unless bundle.match?(/\A[A-Za-z0-9.-]+\z/) && team.match?(/\A[A-Z0-9]{10}\z/)
-  File.write("../Config/Config.xcconfig", "SLASH = /\nAPI_BASE_URL = #{address.sub('https://', 'https:$(SLASH)/')}\nDEVELOPMENT_TEAM = #{team}\nPRODUCT_BUNDLE_IDENTIFIER = #{bundle}\n")
+  File.write("../Config/Config.xcconfig", "TMDB_READ_TOKEN = #{token}\nDEVELOPMENT_TEAM = #{team}\nPRODUCT_BUNDLE_IDENTIFIER = #{bundle}\n")
 end
 
-def ensure_backend
+def ensure_catalog
   require "net/http"
-  uri = URI.join(required("API_BASE_URL"), "/api/mobile/catalog?action=genres&media=movie")
-  response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 15, read_timeout: 30) { |http| http.get(uri.request_uri) }
-  UI.user_error!("Deploy and configure the CineSeeker backend before shipping") unless response.code == "200" && JSON.parse(response.body).fetch("genres").any?
+  require "json"
+  uri = URI("https://api.themoviedb.org/3/genre/movie/list?language=tr-TR")
+  request = Net::HTTP::Get.new(uri)
+  request["Authorization"] = "Bearer #{required('TMDB_READ_TOKEN')}"
+  response = Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 15, read_timeout: 30) { |http| http.request(request) }
+  UI.user_error!("TMDB catalog authentication failed") unless response.code == "200" && JSON.parse(response.body).fetch("genres").any?
 end
 
 default_platform(:ios)
@@ -58,7 +60,7 @@ platform :ios do
   lane :beta do
     required("MATCH_PASSWORD")
     write_config
-    ensure_backend
+    ensure_catalog
     key = connect_key
     setup_ci if ENV["CI"]
     signing(key, readonly: true)

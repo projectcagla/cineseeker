@@ -37,23 +37,77 @@ final class CineSeekerTests: XCTestCase {
         XCTAssertNotNil(export["watchlist"]); XCTAssertEqual(export["searches"] as? [String], ["Dune"])
         store.clearHistory(); XCTAssertTrue(store.recentSearches.isEmpty)
     }
-    @MainActor func testAccountOutboxPersistsAndDeletionKeepsGuestData() throws {
+    @MainActor func testLocalResetAndNoSyncQueue() throws {
         let container = try ModelContainer(for: SavedTitle.self, SavedProvider.self, PendingMutation.self, LocalMetadata.self, configurations: ModelConfiguration(isStoredInMemoryOnly: true))
         let store = StorageManager(container: container)
-        let movie = Movie(id: 19, title: "Kayıt", mediaType: .movie)
-        store.save(movie, status: .want)
-        try store.switchOwner("account-a")
-        store.save(movie, status: .watched, rating: 8)
-        let operations = try store.context.fetch(FetchDescriptor<PendingMutation>())
-        XCTAssertEqual(operations.count, 1)
-        XCTAssertEqual(operations.first?.owner, "account-a")
-        let payload = try XCTUnwrap(JSONSerialization.jsonObject(with: XCTUnwrap(operations.first?.body)) as? [String: Any])
-        XCTAssertEqual(payload["kind"] as? String, "save")
-        try store.storeMetadata(Optional<User>.none, key: "lastUser")
-        XCTAssertNil(try store.metadata("lastUser", as: User.self))
-        try store.eraseAccount("account-a")
+        store.save(Movie(id: 19, title: "Kayıt", mediaType: .movie), status: .watched, rating: 8)
+        store.toggle(Provider(providerId: 8, providerName: "Netflix", logoPath: "/logo.jpg"))
+        store.remember("Dune")
         XCTAssertTrue(try store.context.fetch(FetchDescriptor<PendingMutation>()).isEmpty)
-        XCTAssertEqual(store.item(movie)?.status, .want)
+        try store.resetLocalData()
+        let reopened = StorageManager(container: container)
+        XCTAssertTrue(reopened.titles.isEmpty)
+        XCTAssertTrue(reopened.selected.isEmpty)
+        XCTAssertTrue(reopened.recentSearches.isEmpty)
     }
+    func testTMDBRequestUsesBearerHeaderAndFixedOrigin() throws {
+        let request = try NetworkManager.makeRequest(.init(path: "search/movie", query: ["query": "Aşk & Film"]), token: "test-token")
+        XCTAssertEqual(request.url?.host, "api.themoviedb.org")
+        XCTAssertEqual(request.url?.path, "/3/search/movie")
+        XCTAssertEqual(request.value(forHTTPHeaderField: "Authorization"), "Bearer test-token")
+        XCTAssertFalse(request.url!.absoluteString.contains("test-token"))
+        let params = URLComponents(url: request.url!, resolvingAgainstBaseURL: false)!.queryItems!
+        XCTAssertTrue(params.contains(URLQueryItem(name: "query", value: "Aşk & Film")))
+        XCTAssertThrowsError(try NetworkManager.makeRequest(.init(path: "movie/1"), token: nil))
+        XCTAssertThrowsError(try NetworkManager.makeRequest(.init(path: "https://example.com"), token: "test-token"))
+        XCTAssertThrowsError(try NetworkManager.makeRequest(.init(path: "../secret"), token: "test-token"))
+    }
+    func testNewReleasesUseReleaseDatesAndSubscriptionsUseOR() {
+        let date = Date(timeIntervalSince1970: 1_700_000_000)
+        let movie = LiveCatalogRepository.discoverQuery(media: .movie, mode: .arrivals, providers: [], page: 1, now: date)
+        let tv = LiveCatalogRepository.discoverQuery(media: .tv, mode: .arrivals, providers: [], page: 1, now: date)
+        XCTAssertEqual(movie["sort_by"], "primary_release_date.desc")
+        XCTAssertEqual(tv["sort_by"], "first_air_date.desc")
+        XCTAssertEqual(movie["primary_release_date.lte"], "2023-11-14")
+        XCTAssertEqual(movie["watch_region"], "TR")
+        XCTAssertNil(tv["primary_release_date.lte"])
+        let mine = LiveCatalogRepository.discoverQuery(media: .movie, mode: .mine, providers: [119, 8], page: 2)
+        XCTAssertEqual(mine["with_watch_providers"], "8|119")
+        XCTAssertEqual(mine["with_watch_monetization_types"], "flatrate")
+    }
+    func testDirectRepositoryNormalizesTVAndUsesTurkishOffers() async throws {
+        let config = URLSessionConfiguration.ephemeral
+        config.protocolClasses = [CatalogFixtureProtocol.self]
+        let repository = LiveCatalogRepository(network: NetworkManager(session: URLSession(configuration: config), readToken: "fixture-token"))
+        let page = try await repository.feed(media: .tv, mode: .popular, providers: [], page: 1)
+        XCTAssertEqual(page.results.first?.kind, .tv)
+        XCTAssertEqual(page.results.first?.displayTitle, "Dizi")
+        XCTAssertEqual(page.results.first?.providersTr?.flatrate?.first?.id, 8)
+        let detail = try await repository.detail(XCTUnwrap(page.results.first))
+        XCTAssertEqual(detail.overview, "Özet")
+        XCTAssertEqual(detail.providersTr?.flatrate?.first?.id, 8)
+    }
+}
 
+// Transport fixtures exist only in the test target; the app always uses the live TMDB API.
+final class CatalogFixtureProtocol: URLProtocol, @unchecked Sendable {
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        guard request.value(forHTTPHeaderField: "Authorization") == "Bearer fixture-token",
+              let url = request.url, url.host == "api.themoviedb.org" else {
+            client?.urlProtocol(self, didFailWithError: URLError(.userAuthenticationRequired)); return
+        }
+        let json: String
+        switch url.path {
+        case "/3/discover/tv": json = #"{"page":1,"total_pages":1,"results":[{"id":42,"name":"Dizi","first_air_date":"2025-01-01"}]}"#
+        case "/3/tv/42": json = #"{"id":42,"overview":"Özet","genres":[],"credits":{"cast":[],"crew":[]}}"#
+        case "/3/tv/42/watch/providers": json = #"{"results":{"TR":{"flatrate":[{"provider_id":8,"provider_name":"Netflix","logo_path":"/logo.jpg"}]},"US":{"buy":[{"provider_id":9,"provider_name":"US only"}]}}}"#
+        default: client?.urlProtocol(self, didFailWithError: URLError(.unsupportedURL)); return
+        }
+        client?.urlProtocol(self, didReceive: HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: ["Content-Type":"application/json"])!, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Data(json.utf8))
+        client?.urlProtocolDidFinishLoading(self)
+    }
+    override func stopLoading() {}
 }

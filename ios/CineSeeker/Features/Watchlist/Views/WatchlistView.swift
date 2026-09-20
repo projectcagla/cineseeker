@@ -13,9 +13,6 @@ struct WatchlistView: View {
                         filter("İzlediklerim", status: .watched)
                     }.padding(.horizontal, 20)
                 }
-                if let message = storage.syncMessage {
-                    Button { Task { await storage.sync() } } label: { Label(message, systemImage: "arrow.triangle.2.circlepath").font(.caption).foregroundStyle(.secondary) }.padding(.horizontal)
-                }
                 if model.filtered(storage.titles).isEmpty {
                     StatusPanel(title: "Bir sonraki hikâyen burada", message: "Keşfettiğin filmleri ve dizileri kaydet; internet olmadan da listene ulaş.", icon: "bookmark")
                     Spacer()
@@ -45,7 +42,6 @@ struct WatchlistView: View {
             }.padding(.top, 12).cineBackground().navigationTitle("İzleme Listem")
                 .toolbar { Button { model.grid.toggle() } label: { Image(systemName: model.grid ? "list.bullet" : "square.grid.2x2") }.accessibilityLabel(model.grid ? "Liste görünümü" : "Kart görünümü") }
                 .navigationDestination(for: Movie.self) { MovieDetailView(movie: $0) }
-                .refreshable { await storage.sync() }
         }
     }
     private func filter(_ title: String, status: WatchStatus?) -> some View {
