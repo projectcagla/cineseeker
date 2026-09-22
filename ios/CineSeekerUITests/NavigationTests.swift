@@ -1,4 +1,5 @@
 import XCTest
+import CoreGraphics
 
 final class NavigationTests: XCTestCase {
     @MainActor func testCoreNavigationAndScreenshots() throws {
@@ -16,7 +17,11 @@ final class NavigationTests: XCTestCase {
         capture(app, "02-Search")
         tab("Listem", in: app).tap()
         XCTAssertTrue(app.buttons["Listeyi sırala"].waitForExistence(timeout: 5))
-        app.buttons["Listeyi sırala"].tap()
+        let sortingButton = app.buttons["Listeyi sırala"]
+        XCTAssertTrue(app.frame.contains(sortingButton.frame))
+        // Xcode 16 attempts an unsupported AX scroll on SwiftUI toolbar menus.
+        // Tap the observed on-screen center, then verify the menu actually opened.
+        sortingButton.coordinate(withNormalizedOffset: CGVector(dx: 0.5, dy: 0.5)).tap()
         XCTAssertTrue(app.buttons["Puanıma göre"].waitForExistence(timeout: 5))
         app.buttons["Puanıma göre"].tap()
         capture(app, "03-Library")
