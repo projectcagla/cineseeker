@@ -8,6 +8,7 @@ struct MovieDetail: Decodable, Sendable {
     let genres: [Genre]
     let credits: Credits?
     var providersTr: Availability?
+    var providersError: Bool?
 }
 struct Credits: Decodable, Sendable { let cast: [Person]; let crew: [Person] }
 struct Person: Decodable, Identifiable, Sendable {

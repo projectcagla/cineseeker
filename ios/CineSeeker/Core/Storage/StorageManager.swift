@@ -39,12 +39,15 @@ import Observation
         titles = try context.fetch(FetchDescriptor<SavedTitle>(sortBy: [SortDescriptor(\.updatedAt, order: .reverse)])).filter { $0.owner == owner }
         selected = try context.fetch(FetchDescriptor<SavedProvider>()).filter { $0.owner == owner }.compactMap(\.provider)
     }
-    func item(_ movie: Movie) -> SavedTitle? { titles.first { $0.movie?.key == movie.key } }
+    func item(_ movie: Movie) -> SavedTitle? { titles.first { $0.storageKey == "\(owner):\(movie.key)" } }
     func isSubscribed(_ provider: Provider) -> Bool { selected.contains { $0.id == provider.id } }
     func save(_ movie: Movie, status: WatchStatus, rating: Int? = nil) {
         do {
             guard rating == nil || (1...10).contains(rating!) else { return }
-            if let row = item(movie) { row.statusValue = status.rawValue; row.rating = rating; row.updatedAt = Date() }
+            if let row = item(movie) {
+                row.movieData = try JSONEncoder().encode(movie)
+                row.statusValue = status.rawValue; row.rating = rating; row.updatedAt = Date()
+            }
             else { context.insert(try SavedTitle(owner: owner, movie: movie, status: status, rating: rating)) }
             try context.save(); try reload(); HapticManager.selection()
         } catch { context.rollback(); self.error = error.localizedDescription; try? reload() }
@@ -66,16 +69,21 @@ import Observation
     func remember(_ query: String) {
         let clean = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !clean.isEmpty else { return }
-        recentSearches = Array(([clean] + recentSearches.filter { $0 != clean }).prefix(10))
-        do { try storeMetadata(recentSearches, key: "search:\(owner)") } catch { self.error = error.localizedDescription }
+        let updated = Array(([clean] + recentSearches.filter { $0.searchKey != clean.searchKey }).prefix(10))
+        do { try storeMetadata(updated, key: "search:\(owner)"); recentSearches = updated }
+        catch { context.rollback(); self.error = error.localizedDescription }
     }
     func clearHistory() {
-        recentSearches = []
-        do { try storeMetadata(recentSearches, key: "search:\(owner)") } catch { self.error = error.localizedDescription }
+        do { try storeMetadata([String](), key: "search:\(owner)"); recentSearches = [] }
+        catch { context.rollback(); self.error = error.localizedDescription }
     }
     func refreshProviders() async {
-        do { allProviders = try await LiveCatalogRepository().providers(); try storeMetadata(allProviders, key: "providerCatalog") }
-        catch { self.error = error.localizedDescription }
+        do {
+            let providers = try await LiveCatalogRepository().providers()
+            try Task.checkCancellation()
+            try storeMetadata(providers, key: "providerCatalog")
+            allProviders = providers
+        } catch { context.rollback(); if !Task.isCancelled { self.error = error.localizedDescription } }
     }
     func resetLocalData() throws {
         for row in try context.fetch(FetchDescriptor<SavedTitle>()) { context.delete(row) }

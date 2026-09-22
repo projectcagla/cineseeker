@@ -67,7 +67,12 @@ struct LiveCatalogRepository: CatalogRepository {
     func detail(_ movie: Movie) async throws -> MovieDetail {
         async let details: MovieDetail = network.request(.init(path: "\(movie.kind.rawValue)/\(movie.id)", query: ["append_to_response": "credits"]))
         async let availability = offers(movie)
-        var result = try await details; result.providersTr = try await availability
+        var result = try await details
+        do { result.providersTr = try await availability }
+        catch {
+            try Task.checkCancellation()
+            result.providersError = true
+        }
         return result
     }
     func providers() async throws -> [Provider] {

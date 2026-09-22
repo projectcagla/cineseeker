@@ -14,7 +14,14 @@ import Observation
     private let repository: any CatalogRepository
     init(repository: any CatalogRepository = LiveCatalogRepository()) { self.repository = repository }
     func loadGenres() async {
-        do { genres = try await repository.genres(media) } catch { self.error = error.localizedDescription }
+        let requestedMedia = media
+        genres = []
+        do {
+            let result = try await repository.genres(requestedMedia)
+            try Task.checkCancellation()
+            guard requestedMedia == media else { return }
+            genres = result
+        } catch { if !Task.isCancelled && requestedMedia == media { self.error = error.localizedDescription } }
     }
     func search(more: Bool = false) async {
         if more && (loading || page >= totalPages) { return }
@@ -28,6 +35,6 @@ import Observation
             var seen = Set(movies.map(\.key))
             movies += result.results.filter { seen.insert($0.key).inserted }
             page = result.page; totalPages = result.totalPages
-        } catch is CancellationError {} catch { if token == generation { self.error = error.localizedDescription } }
+        } catch is CancellationError {} catch { if !Task.isCancelled && token == generation { self.error = error.localizedDescription } }
     }
 }

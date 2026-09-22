@@ -12,13 +12,17 @@ import Observation
             exportURL = url
         } catch { message = error.localizedDescription }
     }
+    private func removeExport() throws {
+        // Also remove exports left by a previous launch, when exportURL is nil.
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("CineSeekerExport", isDirectory: true)
+        if FileManager.default.fileExists(atPath: directory.path) { try FileManager.default.removeItem(at: directory) }
+        exportURL = nil
+    }
     func clearExport() {
-        guard let exportURL else { return }
-        do { try FileManager.default.removeItem(at: exportURL); self.exportURL = nil }
-        catch { message = error.localizedDescription }
+        do { try removeExport() } catch { message = error.localizedDescription }
     }
     func reset(_ storage: StorageManager) {
-        do { try storage.resetLocalData(); clearExport(); message = "Bu cihazdaki kişisel verilerin silindi." }
+        do { try storage.resetLocalData(); try removeExport(); message = "Bu cihazdaki kişisel verilerin silindi." }
         catch { storage.context.rollback(); message = error.localizedDescription }
     }
 }

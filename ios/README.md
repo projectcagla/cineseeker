@@ -22,7 +22,7 @@ Simülatörde Apple üyeliği veya Team ID gerekmez. TMDB token'ı yoksa uygulam
 | Yeni Çıkanlar | Son 180 günde çıkmış, Türkiye'de yayın seçeneği olan içerikler; platforma yeni eklenme tarihi değildir |
 | Arama | 300 ms beklemeli arama, film/dizi ve tür filtreleri, yerel geçmiş |
 | Ayrıntılar | Özet, türler, oyuncular, süre/sezon, Türkiye yayın seçenekleri |
-| İzleme listesi | `want`, `watching`, `watched`; 1–10 puan veya boş; kart/liste görünümü |
+| İzleme listesi | `want`, `watching`, `watched`; 1–10 puan veya boş; kart/liste görünümü; metin arama ve sıralama |
 | Çevrimdışı | Kaydedilen liste ve tercihler açılır; daha önce önbelleğe alınmamış afişler için nötr görsel kullanılır |
 | Ayarlar | Platform seçimi, JSON paylaşımı, arama geçmişini ve tüm yerel kişisel verileri silme |
 | Atıflar | Resmi TMDB logosu/açıklaması ve JustWatch atfı |
@@ -46,14 +46,14 @@ Yeni Swift dosyası eklenirse `python3 ios/scripts/generate_project.py` ile payl
 ```sh
 cd ios
 xcodebuild test -project CineSeeker.xcodeproj -scheme CineSeeker \
-  -destination 'platform=iOS Simulator,name=iPhone 17 Pro' CODE_SIGNING_ALLOWED=NO
+  -destination 'platform=iOS Simulator,name=iPhone 18 Pro' CODE_SIGNING_ALLOWED=NO
 
 xcodebuild archive -project CineSeeker.xcodeproj -scheme CineSeeker \
   -configuration Release -destination 'generic/platform=iOS' \
   -archivePath build/CineSeeker.xcarchive CODE_SIGNING_ALLOWED=NO
 ```
 
-İkinci komutun imzasız arşivi TestFlight'a yüklenemez. Son yerel sonuçlar ve canlı test sınırları [VALIDATION.md](VALIDATION.md) içindedir. Ağ yanıtı örnekleri yalnızca test hedefinde kullanılır; uygulama canlı TMDB istemcisidir.
+İkinci komutun imzasız arşivi TestFlight'a yüklenemez. Birim testlerine ek olarak iPhone/iPad temel gezinme ve büyük yazı kontrolleri paylaşılan şemaya dahildir. Son yerel sonuçlar ve canlı test sınırları [VALIDATION.md](VALIDATION.md) içindedir. Ağ yanıtı örnekleri yalnızca test hedefinde kullanılır; uygulama canlı TMDB istemcisidir.
 
 ## Xcode Cloud ile otomatik TestFlight
 

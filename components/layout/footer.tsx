@@ -8,15 +8,15 @@ export function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Brand column */}
                     <div className="space-y-3 md:col-span-2">
-                        <Link href="/" className="font-bold text-lg tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-500 inline-block">
-                            CINESEEKER
+                        <Link href="/" className="inline-block">
+                            <Image src="/brand/wordmark.svg" alt="CineSeeker" width={168} height={42} />
                         </Link>
                         <p className="text-xs text-muted-foreground leading-relaxed max-w-sm">
                             Türkiye&apos;deki yasal dijital yayın platformlarında hangi filmin nerede olduğunu anında öğrenin, kişisel izleme listenizi oluşturun ve aboneliklerinize göre filtreleyin.
                         </p>
                         <div className="flex items-center gap-2 pt-2 text-[11px] text-muted-foreground/80">
-                            <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span>Cloudflare Edge Platform &bull; v0.7.2</span>
+                            <span className="inline-block w-2 h-2 rounded-full bg-orange-400" />
+                            <span>Aradığın hikâye. İzleyeceğin yer.</span>
                         </div>
                     </div>
 

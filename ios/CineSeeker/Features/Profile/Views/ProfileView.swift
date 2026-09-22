@@ -8,7 +8,8 @@ struct ProfileView: View {
             Form {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
-                        Label("Sana ait bir sinema günlüğü", systemImage: "bookmark.circle.fill").font(.headline).foregroundStyle(CineTheme.accent)
+                        BrandWordmark()
+                        Text("Sana ait bir sinema günlüğü").font(.cineHeading)
                         Text("Hesap açmadan keşfet. Listen, puanların ve platformların bu cihazda saklanır.").foregroundStyle(.secondary)
                     }.padding(.vertical, 8)
                 }
@@ -30,7 +31,7 @@ struct ProfileView: View {
                         Text("Yayın uygunluğu verileri JustWatch tarafından sağlanır. CineSeeker yayın yapmaz; içeriklere yasal erişim seçeneklerini gösterir.").font(.caption)
                         Link("JustWatch Türkiye", destination: URL(string: "https://www.justwatch.com/tr")!)
                     }.padding(.vertical, 8)
-                    Text("CineSeeker · 1.0.0").font(.caption).foregroundStyle(.secondary)
+                    Text("CineSeeker · \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))").font(.caption).foregroundStyle(.secondary)
                 }
             }.cineBackground().navigationTitle("Ayarlar")
                 .alert("CineSeeker", isPresented: Binding(get: { model.message != nil }, set: { if !$0 { model.message = nil } })) { Button("Tamam") { model.message = nil } } message: { Text(model.message ?? "") }

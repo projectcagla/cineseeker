@@ -18,7 +18,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   test:
-    name: iOS 17 compatibility / Swift 6
+    name: Minimum deployment iOS 17 / Swift 6
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4

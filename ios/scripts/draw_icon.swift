@@ -1,19 +1,31 @@
-import AppKit
-let size = NSSize(width: 1024, height: 1024)
-let image = NSImage(size: size)
-image.lockFocus()
-NSColor(calibratedWhite: 0.04, alpha: 1).setFill()
-NSBezierPath(rect: NSRect(origin: .zero, size: size)).fill()
-let ring = NSBezierPath()
-ring.appendArc(withCenter: NSPoint(x: 496, y: 540), radius: 278, startAngle: 42, endAngle: 318, clockwise: false)
-ring.lineWidth = 76; ring.lineCapStyle = .round
-NSColor(calibratedRed: 1, green: 0.46, blue: 0.12, alpha: 1).setStroke(); ring.stroke()
-let play = NSBezierPath(); play.move(to: NSPoint(x: 440, y: 384)); play.line(to: NSPoint(x: 440, y: 696)); play.line(to: NSPoint(x: 672, y: 540)); play.close()
-NSGradient(starting: NSColor(calibratedRed: 1, green: 0.42, blue: 0.1, alpha: 1), ending: NSColor(calibratedRed: 1, green: 0.77, blue: 0.24, alpha: 1))!.draw(in: play, angle: 60)
-let sparkle = NSBezierPath(); sparkle.move(to: NSPoint(x: 782,y: 765)); sparkle.line(to: NSPoint(x: 802,y: 812)); sparkle.line(to: NSPoint(x: 848,y: 832)); sparkle.line(to: NSPoint(x: 802,y: 852)); sparkle.line(to: NSPoint(x: 782,y: 899)); sparkle.line(to: NSPoint(x: 762,y: 852)); sparkle.line(to: NSPoint(x: 715,y: 832)); sparkle.line(to: NSPoint(x: 762,y: 812)); sparkle.close()
-NSColor(calibratedRed: 1, green: 0.77, blue: 0.3, alpha: 1).setFill(); sparkle.fill()
-image.unlockFocus()
-let bitmap = NSBitmapImageRep(bitmapDataPlanes: nil, pixelsWide: 1024, pixelsHigh: 1024, bitsPerSample: 8, samplesPerPixel: 3, hasAlpha: false, isPlanar: false, colorSpaceName: .deviceRGB, bytesPerRow: 0, bitsPerPixel: 0)!
-NSGraphicsContext.saveGraphicsState(); NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: bitmap)
-image.draw(in: NSRect(origin: .zero,size: size)); NSGraphicsContext.restoreGraphicsState()
-try bitmap.representation(using: .png, properties: [:])!.write(to: URL(fileURLWithPath: CommandLine.arguments[1]))
+import Foundation
+import CoreGraphics
+import ImageIO
+import UniformTypeIdentifiers
+// Run from the repository root. All surfaces share public/brand/geometry.json.
+let commands = try JSONSerialization.jsonObject(with: Data(contentsOf: URL(fileURLWithPath: "public/brand/geometry.json"))) as! [[Any]]
+let space = CGColorSpace(name: CGColorSpace.sRGB)!
+let context = CGContext(data: nil, width: 1024, height: 1024, bitsPerComponent: 8, bytesPerRow: 0,
+                        space: space, bitmapInfo: CGImageAlphaInfo.noneSkipLast.rawValue)!
+func color(_ r: CGFloat, _ g: CGFloat, _ b: CGFloat) -> CGColor {
+    CGColor(colorSpace: space, components: [r/255, g/255, b/255, 1])!
+}
+context.setFillColor(color(10, 10, 10))
+context.fill(CGRect(x: 0, y: 0, width: 1024, height: 1024))
+context.translateBy(x: 12, y: 1032)
+context.scaleBy(x: 10, y: -10)
+for command in commands {
+    func point(_ index: Int) -> CGPoint { CGPoint(x: command[index] as! Double, y: command[index + 1] as! Double) }
+    switch command[0] as! String {
+    case "M": context.move(to: point(1))
+    case "L": context.addLine(to: point(1))
+    case "C": context.addCurve(to: point(5), control1: point(1), control2: point(3))
+    default: break
+    }
+}
+context.closePath()
+context.setFillColor(color(255, 133, 52))
+context.fillPath()
+let destination = CGImageDestinationCreateWithURL(URL(fileURLWithPath: CommandLine.arguments[1]) as CFURL, UTType.png.identifier as CFString, 1, nil)!
+CGImageDestinationAddImage(destination, context.makeImage()!, nil)
+guard CGImageDestinationFinalize(destination) else { fatalError("Could not export app icon") }
