@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/public/brand/github-cover.svg" alt="CineSeeker — Aradığın hikâye. İzleyeceğin yer." width="100%" />
+  <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/public/brand/github-cover.svg" alt="CineSeeker — Az gezin. İyi izle." width="100%" />
 </p>
 
 <p align="center">
@@ -21,7 +21,7 @@
   <a href="https://github.com/projectcagla/cineseeker/blob/feat/native-ios/docs/brand/README.md">Marka dosyaları</a>
 </p>
 
-## Bir sonraki iyi hikâye
+## İzlemeye değer
 
 CineSeeker, Türkiye’deki yayın seçeneklerini tek yerde toplar. Abonelik, kiralama ve satın alma seçeneklerini ayırır; seçtiğin platformları öne çıkarır. İçerikleri **İzlemek İstiyorum / İzliyorum / İzledim** durumlarıyla kaydedebilir, kendi puanını verebilirsin.
 
@@ -32,6 +32,16 @@ CineSeeker, Türkiye’deki yayın seçeneklerini tek yerde toplar. Abonelik, ki
 | Oyuncular, özet ve yayın seçenekleri | Kart veya liste görünümü | JSON veri dışa aktarımı |
 
 **V1 sunucu istemez.** Katalog doğrudan TMDB’den gelir. Liste, puanlar, platform seçimleri ve arama geçmişi SwiftData ile cihazda tutulur. Katalog için internet gerekir; kaydedilmiş liste çevrimdışı açılır. Cihazlar arası eşitleme ve hesap sistemi V2 kapsamındadır.
+
+## Bana bir film seç
+
+Ana sayfadaki tek dokunuşla, daha önce sevdiğin hikâyelerden yeni bir film bul:
+
+- En yüksek puanlı filmlerin önceliklidir; **7–10 puan** olumlu tercih olarak kullanılır. Puan vermediğin izlenmiş filmler de başlangıç olabilir.
+- En fazla üç filmin TMDB önerilerinden rastgele seçim yapılır. İzlediklerin, izlemekte oldukların ve düşük puanladıkların tekrar önerilmez.
+- **Platformlarımda olsun** açıksa yalnızca seçili platformlardaki abonelik seçenekleri kabul edilir.
+- Neden önerildiği gösterilir. **Başka bir film** ile aynı havuz tükenene kadar farklı seçim gelir.
+- Geçmişin yoksa Türkiye seçkisinden başlanır; kişisel öneri olduğu iddia edilmez. Puanların ve listenin tamamı TMDB’ye gönderilmez; öneri isteğinde ilgili film kimlikleri kullanılır.
 
 ## Uygulamadan
 
@@ -64,7 +74,7 @@ Mobil uygulamaya eklenen ortak okuma token’ı dağıtılan paketten çıkarıl
 
 Cloud ayarları Apple hesabında tutulur. `TMDB_READ_TOKEN` Xcode Cloud’da **Secret** olarak tanımlanır; imzalama Xcode Cloud tarafından yönetilir. İlk TestFlight sürümünün çalıştığı hesap sahibi tarafından doğrulanmıştır. Her yeni sürümün durumu ayrıca Cloud raporundan takip edilmelidir.
 
-[Dağıtım rehberi](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/README.md#xcode-cloud-ile-otomatik-testflight) · [1.1.0 değişiklikleri](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/CHANGELOG.md)
+[Dağıtım rehberi](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/README.md#xcode-cloud-ile-otomatik-testflight) · [1.2.0 değişiklikleri](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/CHANGELOG.md)
 
 ## Kod haritası
 
@@ -89,7 +99,7 @@ Web ve Cloudflare altyapısı depoda korunur. iOS V1’i kullanmak için bunlar�
 
 ## Kimlik ve katkı
 
-CineSeeker’in işareti, film şeridinin devamlılığından ve kurgu kesiminden türetilen **S monogramıdır**. Koyu zemin, sıcak turuncu vurgu ve sade tipografi uygulama ile depo görsellerinde ortaktır. Açık/koyu zemin logoları, tek renk sürüm ve uygulama ikonu [marka paketinde](https://github.com/projectcagla/cineseeker/tree/feat/native-ios/public/brand) bulunur.
+CineSeeker’in kimliği **CINE/SEEKER** yazısı ve **C/** kısaltması üzerine kurulur. Minimal brutalist tasarım; siyah-beyaz zemin, keskin çerçeveler, güçlü başlıklar ve sınırlı turuncu vurgular kullanır. Açık/koyu zemin logoları, tek renk sürüm ve uygulama ikonu [marka paketinde](https://github.com/projectcagla/cineseeker/tree/feat/native-ios/public/brand) bulunur.
 
 Bir sorun bildirmek için [Issues](https://github.com/projectcagla/cineseeker/issues) bölümüne cihazı, iOS sürümünü ve tekrar üretme adımlarını ekle. Token veya kişisel veri paylaşma.
 
