@@ -39,9 +39,9 @@ struct MovieDetailView: View {
             HStack(alignment: .bottom, spacing: 18) {
                 if !typeSize.isAccessibilitySize {
                     PosterImage(path: movie.posterPath, size: "w185").frame(width: 100, height: 150)
-                        .clipShape(RoundedRectangle(cornerRadius: 14))
-                        .overlay(RoundedRectangle(cornerRadius: 14).strokeBorder(CineTheme.border))
-                        .shadow(color: .black.opacity(0.4), radius: 14, y: 8)
+                        .clipShape(Rectangle())
+                        .overlay(Rectangle().strokeBorder(CineTheme.border))
+
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     Text(movie.kind == .movie ? "FİLM" : "DİZİ").font(.caption.bold()).tracking(2).foregroundStyle(CineTheme.accent)
@@ -60,7 +60,7 @@ struct MovieDetailView: View {
             }.font(.subheadline).foregroundStyle(.secondary)
             if let genres = model.detail?.genres, !genres.isEmpty {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack { ForEach(genres) { Text($0.name).font(.caption.weight(.medium)).padding(.horizontal, 12).padding(.vertical, 8).background(CineTheme.surface, in: Capsule()) } }
+                    HStack { ForEach(genres) { Text($0.name).font(.caption.weight(.medium)).padding(.horizontal, 12).padding(.vertical, 8).background(CineTheme.surface, in: Rectangle()) } }
                 }
             }
         }
@@ -84,7 +84,7 @@ struct MovieDetailView: View {
                     Button { storage.save(movie, status: item.status, rating: value) } label: {
                         Text("\(value)").font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 44)
                             .foregroundStyle(item.rating == value ? Color.black : .primary)
-                            .background(item.rating == value ? CineTheme.accent : CineTheme.surface, in: RoundedRectangle(cornerRadius: 12))
+                            .background(item.rating == value ? CineTheme.accent : CineTheme.surface, in: Rectangle())
                     }.buttonStyle(.plain).accessibilityLabel("\(value) / 10 puan ver").accessibilityAddTraits(item.rating == value ? .isSelected : [])
                 }
             }
@@ -113,8 +113,8 @@ struct MovieDetailView: View {
                 Label("Türkiye için doğrulanmış yayın seçeneği bulunamadı.", systemImage: "tv.slash").font(.subheadline).foregroundStyle(.secondary)
             }
             Text("Kaynak: JustWatch. Kataloglar değişebilir; güncel koşulları yayın platformunda kontrol et.").font(.caption).foregroundStyle(.secondary)
-        }.padding(20).background(CineTheme.surface, in: RoundedRectangle(cornerRadius: 24))
-            .overlay(RoundedRectangle(cornerRadius: 24).strokeBorder(CineTheme.border))
+        }.padding(20).background(CineTheme.surface, in: Rectangle())
+            .overlay(Rectangle().strokeBorder(CineTheme.border))
     }
     @ViewBuilder private func offers(_ title: String, providers: [Provider]?, subscription: Bool = false) -> some View {
         if let providers, !providers.isEmpty {
@@ -135,7 +135,7 @@ struct MovieDetailView: View {
                 LazyHStack(alignment: .top, spacing: 16) {
                     ForEach(Array(credits.cast.prefix(25).enumerated()), id: \.offset) { _, person in
                         VStack(alignment: .leading, spacing: 7) {
-                            PosterImage(path: person.profilePath, size: "w185").frame(width: 104, height: 136).clipShape(RoundedRectangle(cornerRadius: 16))
+                            PosterImage(path: person.profilePath, size: "w185").frame(width: 104, height: 136).clipShape(Rectangle())
                             Text(person.name).font(.subheadline.weight(.semibold))
                             if let character = person.character?.nonEmpty { Text(character).font(.caption).foregroundStyle(.secondary) }
                         }.frame(width: 104, alignment: .leading).accessibilityElement(children: .combine)

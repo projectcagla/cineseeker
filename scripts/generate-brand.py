@@ -1,61 +1,33 @@
-"""Rebuild the vector identity and SwiftUI symbol from one geometric master."""
+"""CineSeeker's typographic identity. No illustrated symbol or gradient."""
 from pathlib import Path
-import json
-
 ROOT = Path(__file__).resolve().parents[1]
-OUT = ROOT / 'public/brand'
-OUT.mkdir(parents=True, exist_ok=True)
-# A continuous splice: two cinematic frames joined into an S.
-commands = [
-    ["M",82,20], ["L",36,20], ["C",24,20,18,26,18,38],
-    ["C",18,50,24,56,36,56], ["L",64,56], ["C",69,56,72,59,72,64],
-    ["C",72,69,69,72,64,72], ["L",30,72], ["L",18,84], ["L",64,84],
-    ["C",77,84,84,77,84,64], ["C",84,51,77,44,64,44], ["L",36,44],
-    ["C",32,44,30,42,30,38], ["C",30,34,32,32,36,32], ["L",70,32], ["Z"]
-]
-path = ' '.join(str(value) for command in commands for value in command)
-(OUT / 'geometry.json').write_text(json.dumps(commands) + '\n')
-def svg(body, width, height, label):
-    return f'<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{height}" viewBox="0 0 {width} {height}" role="img" aria-label="{label}">{body}</svg>\n'
-def mark(color='#FF8534'):
-    return f'<path d="{path}" fill="{color}"/>'
-(OUT/'mark.svg').write_text(svg(mark(),100,104,'CineSeeker — splice monogram'))
-(OUT/'mark-mono.svg').write_text(svg(mark('currentColor'),100,104,'CineSeeker'))
-(OUT/'icon.svg').write_text(svg('<rect width="100" height="104" rx="23" fill="#0A0A0A"/>'+mark(),100,104,'CineSeeker'))
-for name,color in [('wordmark','#F5F2EB'),('wordmark-light','#151515')]:
-    (OUT/f'{name}.svg').write_text(svg(f'<g transform="translate(0 2) scale(.63)">{mark()}</g><text x="74" y="48" fill="{color}" font-family="Helvetica Neue,Arial,sans-serif" font-size="38" font-weight="600" letter-spacing="-1.6">CineSeeker</text>',280,70,'CineSeeker'))
-cover='''<defs><radialGradient id="glow"><stop stop-color="#5C2811" stop-opacity=".38"/><stop offset="1" stop-color="#0A0A0A" stop-opacity="0"/></radialGradient></defs>
-<rect width="1280" height="640" fill="#0A0A0A"/>
-<ellipse cx="1080" cy="320" rx="480" ry="500" fill="url(#glow)"/>
-<path d="M64 140H1216 M64 551H1216" stroke="#FFFFFF" stroke-opacity=".12"/>
-<g transform="translate(52 38) scale(.65)">'''+mark()+'''</g>
-<g font-family="Helvetica Neue,Arial,sans-serif">
-<text x="130" y="85" fill="#F5F2EB" font-size="33" font-weight="600" letter-spacing="-1.2">CineSeeker</text>
-<text x="1216" y="79" text-anchor="end" fill="#A8A49E" font-size="13" letter-spacing="3">TÜRKİYE İÇİN SİNEMA REHBERİ</text>
-<text x="64" y="246" fill="#FF8534" font-size="14" letter-spacing="3">KEŞFET. KAYDET. İZLE.</text>
-<text x="60" y="334" fill="#F5F2EB" font-size="66" font-weight="600" letter-spacing="-3">Aradığın hikâye.</text>
-<text x="60" y="411" fill="#F5F2EB" font-size="66" font-weight="600" letter-spacing="-3">İzleyeceğin yer.</text>
-<text x="64" y="470" fill="#A8A49E" font-size="19">Film ve diziler. Senin platformların. Tek bir rehber.</text>
-<text x="64" y="592" fill="#A8A49E" font-size="13" letter-spacing="1.8">NATIVE iOS / SWIFTUI</text>
-<text x="1216" y="592" text-anchor="end" fill="#A8A49E" font-size="13" letter-spacing="1.8">CINESEEKER / 01</text>
+OUT = ROOT/'public/brand'; OUT.mkdir(parents=True, exist_ok=True)
+def svg(body,w,h,label):
+ return f'<svg xmlns="http://www.w3.org/2000/svg" width="{w}" height="{h}" viewBox="0 0 {w} {h}" role="img" aria-label="{label}">{body}</svg>\n'
+def glyph(color):
+ return f'<text x="10" y="72" font-family="Helvetica Neue,Arial,sans-serif" font-size="78" font-weight="700" letter-spacing="-7" fill="{color}">C/</text>'
+(OUT/'mark.svg').write_text(svg(glyph('#F4F4EF'),100,100,'CineSeeker C slash'))
+(OUT/'mark-mono.svg').write_text(svg(glyph('currentColor'),100,100,'CineSeeker'))
+(OUT/'icon.svg').write_text(svg('<rect width="100" height="100" fill="#0A0A0A"/>'+glyph('#F4F4EF')+'<path d="M15 85H85" stroke="#FF5C29" stroke-width="3"/>',100,100,'CineSeeker'))
+for name,color in [('wordmark','#F4F4EF'),('wordmark-light','#0A0A0A')]:
+ body=f'<path d="M3 16V50" stroke="#FF5C29" stroke-width="5"/><text x="18" y="46" font-family="Helvetica Neue,Arial,sans-serif" font-size="32" font-weight="700" letter-spacing="-1.6" fill="{color}">CINE/SEEKER</text>'
+ (OUT/f'{name}.svg').write_text(svg(body,218,66,'CineSeeker'))
+body='''<rect width="1280" height="640" fill="#0A0A0A"/>
+<path d="M56 126H1224 M56 544H1224 M880 158V512" stroke="#F4F4EF" stroke-opacity=".3"/>
+<g fill="#F4F4EF" font-family="Courier New,Courier,monospace">
+<text x="56" y="86" font-size="34" font-weight="700" letter-spacing="-2">CINE/SEEKER</text>
+<text x="1224" y="80" text-anchor="end" font-size="15">BAĞIMSIZ YAYIN REHBERİ / TR</text>
+<text x="56" y="195" font-size="16" fill="#FF5C29">AZ GEZİN. İYİ İZLE.</text>
+<text x="56" y="493" font-size="18">FİLM. DİZİ. SENİN PLATFORMLARIN.</text>
+<text x="56" y="589" font-size="14">SWIFTUI / NATIVE iOS</text>
+<text x="1224" y="589" text-anchor="end" font-size="14">KEŞFET / KAYDET / İZLE</text>
 </g>
-<g transform="translate(882 213) scale(2.65)">'''+mark()+'''</g>'''
-(OUT/'github-cover.svg').write_text(svg(cover,1280,640,'CineSeeker. Aradığın hikâye. İzleyeceğin yer.'))
-Path(ROOT/'app/icon.svg').write_text((OUT/'icon.svg').read_text())
-shape='''// Generated by scripts/generate-brand.py. Geometry is shared with the brand SVGs.
-import SwiftUI
-struct CineSymbol: Shape {
-    func path(in rect: CGRect) -> Path {
-        let scale = min(rect.width / 100, rect.height / 104)
-        let origin = CGPoint(x: (rect.width - 100 * scale) / 2, y: (rect.height - 104 * scale) / 2)
-        var path = Path()
-'''
-def point(x,y):
-    return f'CGPoint(x: origin.x + {x} * scale, y: origin.y + {y} * scale)'
-for c in commands:
-    if c[0] in ('M','L'):
-        shape+=f'        path.{"move" if c[0] == "M" else "addLine"}(to: {point(*c[1:])})\n'
-    elif c[0] == 'C':
-        shape+=f'        path.addCurve(to: {point(*c[5:7])}, control1: {point(*c[1:3])}, control2: {point(*c[3:5])})\n'
-shape+='        path.closeSubpath()\n        return path\n    }\n}\n'
-(ROOT/'ios/CineSeeker/Core/Theme/CineSymbol.swift').write_text(shape)
+<g fill="#F4F4EF" font-family="Helvetica Neue,Arial,sans-serif" font-weight="900" font-size="98" letter-spacing="-5">
+<text x="49" y="320">İZLEMEYE</text><text x="49" y="422">DEĞER.</text>
+</g>
+<text x="901" y="395" font-family="Helvetica Neue,Arial,sans-serif" font-size="260" font-weight="700" letter-spacing="-20" fill="#F4F4EF">C/</text>
+<path d="M928 455H1198" stroke="#FF5C29" stroke-width="9"/>'''
+(OUT/'github-cover.svg').write_text(svg(body,1280,640,'CineSeeker. Az gezin. İyi izle. İzlemeye değer.'))
+(ROOT/'app/icon.svg').write_text((OUT/'icon.svg').read_text())
+for stale in [OUT/'geometry.json',ROOT/'ios/CineSeeker/Core/Theme/CineSymbol.swift']:
+ if stale.exists(): stale.unlink()

@@ -1,4 +1,4 @@
-# CineSeeker 1.1.0 — doğrulama raporu
+# CineSeeker 1.2.0 — doğrulama raporu
 
 22 Eylül 2026. Xcode 27.0 (27A266a), Swift 6, iOS 27 SDK; minimum dağıtım hedefi iOS 17.
 
@@ -6,15 +6,19 @@
 
 | Kontrol | Sonuç |
 |---|---|
-| iPhone 18 Pro / iOS 27 | 16 birim + 2 arayüz testi, 0 hata |
-| iPad Pro 11-inch (M5) / iOS 27 | 16 birim + 2 arayüz testi, 0 hata |
+| iPhone 18 Pro / iOS 27 | 20 birim + 2 arayüz testi, 0 hata |
+| iPad Pro 11-inch (M5) / iOS 27 | 20 birim + 2 arayüz testi, 0 hata |
 | Büyük yazı | En büyük erişilebilirlik boyutunda keşfet, liste ve platform gezinmesi |
-| Release / generic iOS | 1.1.0 arşivi Apple geliştirme takımıyla imzalı oluşturuldu |
+| Release / generic iOS | 1.2.0 arşivi Apple geliştirme takımıyla imzalı oluşturuldu |
 | İmza bütünlüğü | `codesign --verify --deep --strict` başarılı |
 | Web TypeScript / ESLint | Başarılı |
 | Web Vitest | 29 test, 0 hata |
 | Next.js / OpenNext üretim derlemesi | Başarılı |
 | Marka dosyaları | SVG/PNG kapak, 1024 px opak ikon ve simülatör ekranları görsel olarak incelendi |
+
+## Öneri doğrulaması
+
+TMDB `/movie/{id}/recommendations` canlı okuma anahtarıyla HTTP 200 ve 20 sonuç döndürdü. Testler olumlu puanların önceliğini, izlenen/izlenen devam/düşük puanlı içeriklerin elenmesini, kiralamanın abonelik sayılmamasını, geçmiş yokken genel seçkiyi, tekrar önlemeyi ve ağ hatasından çıkışı kapsar.
 
 ## Regresyon kapsamı
 
@@ -37,7 +41,9 @@ Arayüz testleri canlı katalog sonucuna bağımlı değildir; ana gezinmenin in
 
 `CineSeeker TestFlight`, `feat/native-ios` GitHub dalına bağlıdır. Apple uygulaması `6814588419`; Bundle ID `com.projectcagla.cineseeker`.
 
-Önceki sürümün Xcode Cloud **Test, Build ve Archive** sonuçları GitHub Checks üzerinden başarıyla doğrulandı (commit `ebf321d`, Cloud build `164e4401-d17e-40ed-a3fe-2ffddbe9b8d6`). İlk TestFlight sürümünün çalıştığı hesap sahibi tarafından ayrıca doğrulandı.
+1.1.0 öncesi sürümün Xcode Cloud **Test, Build ve Archive** sonuçları GitHub Checks üzerinden başarıyla doğrulandı (commit `ebf321d`, Cloud build `164e4401-d17e-40ed-a3fe-2ffddbe9b8d6`). İlk TestFlight sürümünün çalıştığı hesap sahibi tarafından ayrıca doğrulandı.
+
+1.1.0 gönderimi `cbbc38d` için Xcode Cloud Test, Build ve Archive işlemleri de başarılıdır. GitHub Xcode 16.2 denemesinde bulunan fonksiyon referansı derleme hatası 1.2.0’da açık closure kullanımıyla giderildi.
 
 Bu rapordaki yerel arşiv başarısı, yeni sürümün TestFlight’a teslim edildiği anlamına gelmez. Yeni gönderimin Cloud kontrolü GitHub üzerinden, TestFlight işlemesi ise App Store Connect üzerinden izlenir. Son kontrolde bu bilgisayardaki Apple web oturumu yeniden giriş gerektiriyordu.
 

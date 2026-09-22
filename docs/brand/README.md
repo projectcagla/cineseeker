@@ -1,44 +1,42 @@
-# CineSeeker — görsel kimlik
+# CINE/SEEKER — minimal brutalist kimlik
 
-**Aradığın hikâye. İzleyeceğin yer.**
+**AZ GEZİN. İYİ İZLE.**
 
-CineSeeker’in işareti bir film şeridinin devamlılığını S harfine dönüştürür. Yuvarlatılmış dönüşler akışı, 45° kesimler kurgu birleşimini anlatır. İşaretin içine oynat düğmesi, film makarası veya ek sembol konmaz.
+Kimlik tipografiktir: tam yazım **CINE/SEEKER**, dar alanlarda **C/**. Eğik çizgi keşiften izlemeye geçişi ayırır. Ek maskot, oynat düğmesi veya süslü monogram kullanılmaz.
 
-## Dosyalar
+## Marka paketi
 
 | Dosya | Kullanım |
 |---|---|
-| [mark.svg](../../public/brand/mark.svg) | Şeffaf zeminde turuncu sembol |
-| [mark-mono.svg](../../public/brand/mark-mono.svg) | Tek renk; `currentColor`, varsayılan siyah |
-| [wordmark.svg](../../public/brand/wordmark.svg) | Koyu zemin üzerinde yatay logo |
-| [wordmark-light.svg](../../public/brand/wordmark-light.svg) | Açık zemin üzerinde yatay logo |
-| [app-icon.png](../../public/brand/app-icon.png) | 1024 × 1024, opak iOS uygulama ikonu |
-| [icon.svg](../../public/brand/icon.svg) | Web favicon |
-| [github-cover.svg](../../public/brand/github-cover.svg) | GitHub README kapağı, 1280 × 640 |
-| [github-cover.png](../../public/brand/github-cover.png) | GitHub sosyal paylaşım görseli |
+| [wordmark.svg](../../public/brand/wordmark.svg) | Koyu zeminde tam logo |
+| [wordmark-light.svg](../../public/brand/wordmark-light.svg) | Açık zeminde tam logo |
+| [mark.svg](../../public/brand/mark.svg) | Koyu zeminde C/ |
+| [mark-mono.svg](../../public/brand/mark-mono.svg) | Tek renk `currentColor` |
+| [app-icon.png](../../public/brand/app-icon.png) | 1024 × 1024, opak iOS ikonu |
+| [icon.svg](../../public/brand/icon.svg) | Web ikonu |
+| [github-cover.svg](../../public/brand/github-cover.svg) | Ölçeklenebilir README kapağı |
+| [github-cover.png](../../public/brand/github-cover.png) | 1280 × 640 sosyal paylaşım görseli |
 
-## Palet ve tipografi
+## Görsel kurallar
 
-- **Gece:** `#0A0A0A` — ana zemin.
-- **Kurgu turuncusu:** `#FF8534` — marka işareti.
-- **Kâğıt:** `#F5F2EB` — ana metin.
-- **Taş:** `#A8A49E` — yardımcı metin.
-- **Nane:** `#66DBA6` — yalnızca abonelik/onay durumu; marka renginin yerine kullanılmaz.
-
-iOS’ta sistem yazısı ve Dynamic Type kullanılır. Yatay marka yazısı Helvetica Neue, Arial veya sans-serif ile yarı kalın, sıkı harf aralığında dizilir. Uzun metinler normal ağırlıktadır. Büyük harf yalnızca kısa üst etiketlerde kullanılır.
-
-Sembolün çevresinde yüksekliğinin en az dörtte biri kadar boşluk bırak. Sembolü en az 24 px, yatay logoyu en az 140 px genişlikte kullan. Oranları değiştirme; gölge, parlama, kontur veya ayrı bir degrade ekleme. Uygulama ikonunun köşelerini dosyada kesme; iOS maskesi uygular.
+- Zemin `#0A0A0A`, yazı `#F4F4EF`, vurgu `#FF5C29`.
+- Tipografi: koyu grotesk başlıklar; teknik etiketlerde monospaced sistem yazısı. iOS’ta Dynamic Type korunur.
+- Köşeler keskin, yüzeyler düz, ayırıcı çizgiler incedir. Dekoratif gölge, parlama ve renkli degrade kullanılmaz. Afişin üzerinde metin okunurluğu için siyah geçiş kullanılabilir.
+- Ana işlem siyah-beyaz bloktur. Turuncu kısa vurgu ve aktif durumlar içindir; yeşil yalnızca abonelik durumunu belirtir.
+- Native gezinme, arama ve paylaşım kontrolleri işletim sisteminin erişilebilir davranışını korur.
+- Logonun çevresinde harf yüksekliğinin yarısı kadar boşluk bırak. C/ en az 24 px; tam logo en az 140 px genişlikte kullanılmalıdır.
+- Uygulama ikonunun köşelerini dosyada kesme; maskeyi iOS uygular.
 
 ## Yeniden üretim
 
-`feat/native-ios` dalının depo kökünde:
+`feat/native-ios` dalının kökünde:
 
 ```sh
 python3 scripts/generate-brand.py
 swift ios/scripts/draw_icon.swift ios/CineSeeker/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png
 cp ios/CineSeeker/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png public/brand/app-icon.png
-node -e "require('sharp')('public/brand/github-cover.svg').png().toFile('public/brand/github-cover.png')"
+node scripts/render-brand.mjs
 python3 ios/scripts/generate_project.py
 ```
 
-Vektörler ve SwiftUI sembolü aynı geometriden üretilir. Ana geometri `scripts/generate-brand.py` içindedir. PNG üretimi macOS CoreGraphics; kapak dönüşümü web projesindeki Sharp ile yapılır.
+SVG kaynakları Python, uygulama ikonu CoreGraphics/CoreText ve web çıktı dosyaları projenin Sharp bağımlılığı ile üretilir.

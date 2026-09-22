@@ -7,7 +7,7 @@ struct SearchView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 24) {
                     SectionHeading(title: "Aklındaki hikâyeyi bul.", subtitle: "Türkçe veya orijinal adıyla ara, türlere göz at.")
-                    Picker("İçerik türü", selection: $model.media) { ForEach(MediaType.allCases) { Text($0.title).tag($0) } }.pickerStyle(.segmented)
+                    MediaTypeControl(selection: $model.media)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             FilterChip(title: "Tüm türler", selected: model.genre == nil) { model.genre = nil }
@@ -31,7 +31,7 @@ struct SearchView: View {
                                     }.font(.subheadline).frame(minHeight: 44)
                                 }.buttonStyle(.plain)
                             }
-                        }.padding(16).background(CineTheme.surface, in: RoundedRectangle(cornerRadius: 20))
+                        }.padding(16).background(CineTheme.surface, in: Rectangle())
                     }
                     if let error = model.error { StatusPanel(title: "Arama yapılamadı", message: error, icon: "wifi.exclamationmark") { Task { await model.search() } } }
                     if model.loading && model.movies.isEmpty { LoadingCards() }
@@ -41,7 +41,7 @@ struct SearchView: View {
                         StatusPanel(title: "Sonuç bulunamadı", message: model.page < model.totalPages ? "Bu sayfada seçtiğin türe uygun içerik yok. Sonraki sonuçlara göz atabilirsin." : "Başka bir isim veya tür deneyebilirsin.", icon: "magnifyingglass")
                     }
                     if model.page < model.totalPages && !model.loading {
-                        Button("Daha Fazla Sonuç") { Task { await model.search(more: true) } }.buttonStyle(.bordered).controlSize(.large).frame(maxWidth: .infinity)
+                        Button("Daha Fazla Sonuç") { Task { await model.search(more: true) } }.buttonStyle(CineButtonStyle(prominent: false)).controlSize(.large).frame(maxWidth: .infinity)
                     }
                 }.padding(20).frame(maxWidth: 1080).frame(maxWidth: .infinity)
             }.cineBackground().navigationTitle("Ara")

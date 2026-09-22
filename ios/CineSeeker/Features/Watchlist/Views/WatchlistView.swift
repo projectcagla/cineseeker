@@ -27,7 +27,7 @@ struct WatchlistView: View {
                                     NavigationLink(value: movie) {
                                         HStack(spacing: 14) {
                                             if !typeSize.isAccessibilitySize {
-                                                PosterImage(path: movie.posterPath, size: "w185").frame(width: 62, height: 93).clipShape(RoundedRectangle(cornerRadius: 10))
+                                                PosterImage(path: movie.posterPath, size: "w185").frame(width: 62, height: 93).clipShape(Rectangle())
                                             }
                                             VStack(alignment: .leading, spacing: 7) {
                                                 Text(movie.displayTitle).font(.headline)

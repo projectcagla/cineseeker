@@ -9,7 +9,7 @@ struct ProfileView: View {
                 Section {
                     VStack(alignment: .leading, spacing: 10) {
                         BrandWordmark()
-                        Text("Sana ait bir sinema günlüğü").font(.cineHeading)
+                        Text("SİNEMA GÜNLÜĞÜN.").font(.cineHeading)
                         Text("Hesap açmadan keşfet. Listen, puanların ve platformların bu cihazda saklanır.").foregroundStyle(.secondary)
                     }.padding(.vertical, 8)
                 }
@@ -31,7 +31,7 @@ struct ProfileView: View {
                         Text("Yayın uygunluğu verileri JustWatch tarafından sağlanır. CineSeeker yayın yapmaz; içeriklere yasal erişim seçeneklerini gösterir.").font(.caption)
                         Link("JustWatch Türkiye", destination: URL(string: "https://www.justwatch.com/tr")!)
                     }.padding(.vertical, 8)
-                    Text("CineSeeker · \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.1.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))").font(.caption).foregroundStyle(.secondary)
+                    Text("CineSeeker · \(Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.2.0") (\(Bundle.main.infoDictionary?["CFBundleVersion"] as? String ?? "1"))").font(.caption).foregroundStyle(.secondary)
                 }
             }.cineBackground().navigationTitle("Ayarlar")
                 .alert("CineSeeker", isPresented: Binding(get: { model.message != nil }, set: { if !$0 { model.message = nil } })) { Button("Tamam") { model.message = nil } } message: { Text(model.message ?? "") }
@@ -49,6 +49,7 @@ struct PrivacyView: View {
                 Text("CineSeeker V1 hesap oluşturmanı istemez. İzleme listen, puanların, platform seçimlerin ve son aramaların cihazında saklanır. CineSeeker’in bir hesap veya eşitleme sunucusuna gönderilmez.")
                 Text("Film, dizi, görsel ve yayın bilgileri için uygulama doğrudan TMDB’ye bağlanır. Arama metni, seçtiğin tür ve platform filtreleri bu hizmete iletilir. TMDB bağlantı sırasında IP adresini görebilir.")
                 Text("Ayarlar bölümünden yerel verilerini JSON dosyası olarak paylaşabilir veya cihazdaki tüm kişisel kayıtlarını silebilirsin. Paylaştığın dosyaların kopyalarını kendin yönetirsin. Cihaz yedeklerin iOS ve iCloud ayarlarına tabidir; CineSeeker cihazlar arasında eşitleme yapmaz.")
+                Text("Film önerisi istediğinde, yüksek puan verdiğin veya izlediğin en fazla üç filmin kimliği öneri almak için TMDB’ye iletilir. Puanların ve listenin tamamı gönderilmez; eleme ve rastgele seçim cihazda yapılır.")
                 Text("CineSeeker reklam takibi yapmaz ve uygulama içinden ücretli platform aboneliği satmaz.")
                 Link("TMDB Gizlilik Politikası", destination: URL(string: "https://www.themoviedb.org/privacy-policy")!)
                 Link("JustWatch Gizlilik Politikası", destination: URL(string: "https://www.justwatch.com/tr/gizlilik-politikasi")!)

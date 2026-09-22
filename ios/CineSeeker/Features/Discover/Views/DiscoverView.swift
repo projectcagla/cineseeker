@@ -4,17 +4,27 @@ struct DiscoverView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var model = DiscoverViewModel()
     @State private var showPlatforms = false
+    @State private var showRecommendation = false
     private var taskID: String { "\(model.media.rawValue):\(model.mode.rawValue):\(storage.selected.map(\.id).sorted())" }
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("BU AKŞAM NE İZLESEK?").font(.caption.weight(.semibold)).tracking(2.5).foregroundStyle(CineTheme.accent)
-                        Text("İyi bir hikâye bul.").font(.cineTitle)
-                        Text("Aradığın hikâye. İzleyeceğin yer.").font(.subheadline).foregroundStyle(.secondary)
+                        Text("01 / KEŞİF").font(.cineLabel).tracking(2).foregroundStyle(CineTheme.accent)
+                        Text("AZ GEZİN.\nİYİ İZLE.").font(.cineTitle).tracking(-1.5)
+                        Text("Türkiye için bağımsız yayın rehberi.").font(.subheadline).foregroundStyle(.secondary)
                     }.padding(.top, 12)
-                    Picker("İçerik türü", selection: $model.media) { ForEach(MediaType.allCases) { Text($0.title).tag($0) } }.pickerStyle(.segmented)
+                    Button { showRecommendation = true } label: {
+                        HStack {
+                            Image(systemName: "shuffle")
+                            Text("BANA BİR FİLM SEÇ")
+                            Spacer()
+                            Image(systemName: "arrow.up.right")
+                        }
+                    }.buttonStyle(CineButtonStyle()).accessibilityIdentifier("recommendMovie")
+                    Rectangle().fill(CineTheme.border).frame(height: 1)
+                    MediaTypeControl(selection: $model.media)
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
                             ForEach(FeedMode.allCases) { mode in
@@ -24,7 +34,7 @@ struct DiscoverView: View {
                     }.contentMargins(.vertical, 2)
                     if model.mode == .mine && storage.selected.isEmpty {
                         StatusPanel(title: "Keşfi kendine göre ayarla", message: "Abone olduğun platformları seç; sana açık olan hikâyeleri bir araya getirelim.", icon: "tv")
-                        Button("Platformlarımı Seç") { showPlatforms = true }.buttonStyle(.borderedProminent).controlSize(.large).frame(maxWidth: .infinity)
+                        Button("Platformlarımı Seç") { showPlatforms = true }.buttonStyle(CineButtonStyle()).controlSize(.large).frame(maxWidth: .infinity)
                     } else {
                         if !model.movies.isEmpty && model.mode == .popular { hero }
                         SectionHeading(title: sectionTitle, subtitle: sectionSubtitle)
@@ -37,7 +47,7 @@ struct DiscoverView: View {
                         }
                         if !model.loading && model.page < model.totalPages && !model.movies.isEmpty {
                             Button("Daha Fazla Keşfet") { Task { await model.load(providers: storage.selected.map(\.id), more: true) } }
-                                .buttonStyle(.bordered).controlSize(.large).frame(maxWidth: .infinity)
+                                .buttonStyle(CineButtonStyle(prominent: false)).controlSize(.large).frame(maxWidth: .infinity)
                         }
                     }
                     Text("Türkiye kataloğu · Yayın verileri JustWatch\nFilm ve dizi bilgileri TMDB")
@@ -54,6 +64,7 @@ struct DiscoverView: View {
                 }
                 .navigationDestination(for: Movie.self) { MovieDetailView(movie: $0) }
                 .task(id: taskID) { await reload() }.refreshable { await reload() }
+                .sheet(isPresented: $showRecommendation) { RecommendationView() }
                 .sheet(isPresented: $showPlatforms) { NavigationStack { SubscriptionsView().toolbar { Button("Bitti") { showPlatforms = false } } } }
         }
     }
@@ -76,7 +87,7 @@ struct DiscoverView: View {
                             PosterImage(path: movie.backdropPath ?? movie.posterPath, size: "w780")
                             LinearGradient(colors: [.black.opacity(0.05), .black.opacity(0.9)], startPoint: .center, endPoint: .bottom)
                             VStack(alignment: .leading, spacing: 10) {
-                                Text("GÜNÜN SEÇKİSİ").font(.caption2.bold()).tracking(2).foregroundStyle(CineTheme.accent)
+                                Text("ÖNE ÇIKAN / TR").font(.caption2.bold()).tracking(2).foregroundStyle(CineTheme.accent)
                                 Text(movie.displayTitle).font(.cineHeading).lineLimit(typeSize.isAccessibilitySize ? 4 : 2)
                                 HStack(spacing: 6) {
                                     Text(movie.year)
@@ -85,9 +96,9 @@ struct DiscoverView: View {
                                     Image(systemName: "arrow.up.right")
                                 }.font(.subheadline).foregroundStyle(.white.opacity(0.85))
                             }.padding(24)
-                        }.frame(height: typeSize.isAccessibilitySize ? 420 : 320).foregroundStyle(.white)
-                            .clipShape(RoundedRectangle(cornerRadius: 26))
-                            .overlay(RoundedRectangle(cornerRadius: 26).strokeBorder(CineTheme.border))
+                        }.frame(height: typeSize.isAccessibilitySize ? 600 : 320).foregroundStyle(.white)
+                            .clipShape(Rectangle())
+                            .overlay(Rectangle().strokeBorder(CineTheme.border))
                     }.buttonStyle(.plain).containerRelativeFrame(.horizontal, count: 1, spacing: 14)
                         .accessibilityLabel("Öne çıkan: \(movie.displayTitle), ayrıntıları aç")
                 }

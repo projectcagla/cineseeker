@@ -20,6 +20,7 @@ Simülatörde Apple üyeliği veya Team ID gerekmez. TMDB token'ı yoksa uygulam
 | Keşfet | Türkiye'de abonelik/kiralama/satın alma seçeneği bulunan film ve diziler |
 | Platformlarım | Seçili servislerde abonelik kapsamında erişilebilen içerikler |
 | Yeni Çıkanlar | Son 180 günde çıkmış, Türkiye'de yayın seçeneği olan içerikler; platforma yeni eklenme tarihi değildir |
+| Sana bir film | 7–10 puanlı veya puansız izlenmiş en fazla üç filmden TMDB önerileri; tekrar/düşük puan eleme ve isteğe bağlı abonelik filtresi |
 | Arama | 300 ms beklemeli arama, film/dizi ve tür filtreleri, yerel geçmiş |
 | Ayrıntılar | Özet, türler, oyuncular, süre/sezon, Türkiye yayın seçenekleri |
 | İzleme listesi | `want`, `watching`, `watched`; 1–10 puan veya boş; kart/liste görünümü; metin arama ve sıralama |
@@ -97,6 +98,6 @@ GitHub Actions → **iOS validation and TestFlight** → Run workflow → `uploa
 
 ## Gizlilik ve yayın
 
-V1 e-posta, ad veya kullanıcı hesabı toplamaz. Liste/puan/geçmiş cihazdadır; arama metni ve platform/tür filtreleri TMDB'ye iletilir. Bu davranış uygulama içindeki gizlilik metninde açıklanır. TMDB'nin kendi veri saklama uygulamalarını da hesaba katarak App Store gizlilik beyanlarını tamamlayın. App Store için gerekli herkese açık gizlilik/destek sayfası statik bir sayfada barındırılabilir; uygulama sunucusu gerektirmez.
+V1 e-posta, ad veya kullanıcı hesabı toplamaz. Liste/puan/geçmiş cihazdadır; arama metni ve platform/tür filtreleri TMDB'ye iletilir. Kişisel öneri istediğinde ilgili en fazla üç film kimliği de TMDB öneri uçlarına gönderilir; puanlar ve listenin tamamı cihazda kalır. Bu davranış uygulama içindeki gizlilik metninde açıklanır. TMDB'nin kendi veri saklama uygulamalarını da hesaba katarak App Store gizlilik beyanlarını tamamlayın. App Store için gerekli herkese açık gizlilik/destek sayfası statik bir sayfada barındırılabilir; uygulama sunucusu gerektirmez.
 
 TestFlight için Apple hesabı ve imzalama yine gereklidir. Gerçek TMDB token'ıyla katalog, arama, platform listesi ve ayrıntıları cihazda kontrol edin. Yayından önce fiziksel cihaz, erişilebilirlik ve iOS 17 runtime kontrollerini tamamlayın.

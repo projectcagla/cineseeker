@@ -1,5 +1,14 @@
 # Sürüm notları
 
+## 1.2.0
+
+- Minimal brutalist arayüz: düz siyah-beyaz yüzeyler, keskin kartlar, güçlü tipografi, çizgili filtreler ve sınırlı turuncu vurgu.
+- Tipografik CINE/SEEKER logosu ve C/ uygulama ikonu; GitHub kimliği yenilendi.
+- “Bana bir film seç”: yüksek puanlı ve izlenmiş filmlerden kişisel rastgele öneri, seçilme nedeni ve başka film seçimi.
+- İzlenen/izlenmekte olan ve düşük puanlı filmleri eleme; isteğe bağlı abonelik filtresi.
+- Yeni öneri senaryoları için birim testleri ve öneri ekranı gezinme kontrolü.
+- Eski Swift 6 derleyicisinde abonelik kontrolünün fonksiyon referansı kaynaklı derleme hatası giderildi.
+
 ## 1.1.0
 
 - Yeni film şeridi monogramı, uygulama ikonu, marka yazısı ve GitHub kimliği.

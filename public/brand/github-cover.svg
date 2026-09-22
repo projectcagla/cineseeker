@@ -1,16 +1,15 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-label="CineSeeker. Aradığın hikâye. İzleyeceğin yer."><defs><radialGradient id="glow"><stop stop-color="#5C2811" stop-opacity=".38"/><stop offset="1" stop-color="#0A0A0A" stop-opacity="0"/></radialGradient></defs>
-<rect width="1280" height="640" fill="#0A0A0A"/>
-<ellipse cx="1080" cy="320" rx="480" ry="500" fill="url(#glow)"/>
-<path d="M64 140H1216 M64 551H1216" stroke="#FFFFFF" stroke-opacity=".12"/>
-<g transform="translate(52 38) scale(.65)"><path d="M 82 20 L 36 20 C 24 20 18 26 18 38 C 18 50 24 56 36 56 L 64 56 C 69 56 72 59 72 64 C 72 69 69 72 64 72 L 30 72 L 18 84 L 64 84 C 77 84 84 77 84 64 C 84 51 77 44 64 44 L 36 44 C 32 44 30 42 30 38 C 30 34 32 32 36 32 L 70 32 Z" fill="#FF8534"/></g>
-<g font-family="Helvetica Neue,Arial,sans-serif">
-<text x="130" y="85" fill="#F5F2EB" font-size="33" font-weight="600" letter-spacing="-1.2">CineSeeker</text>
-<text x="1216" y="79" text-anchor="end" fill="#A8A49E" font-size="13" letter-spacing="3">TÜRKİYE İÇİN SİNEMA REHBERİ</text>
-<text x="64" y="246" fill="#FF8534" font-size="14" letter-spacing="3">KEŞFET. KAYDET. İZLE.</text>
-<text x="60" y="334" fill="#F5F2EB" font-size="66" font-weight="600" letter-spacing="-3">Aradığın hikâye.</text>
-<text x="60" y="411" fill="#F5F2EB" font-size="66" font-weight="600" letter-spacing="-3">İzleyeceğin yer.</text>
-<text x="64" y="470" fill="#A8A49E" font-size="19">Film ve diziler. Senin platformların. Tek bir rehber.</text>
-<text x="64" y="592" fill="#A8A49E" font-size="13" letter-spacing="1.8">NATIVE iOS / SWIFTUI</text>
-<text x="1216" y="592" text-anchor="end" fill="#A8A49E" font-size="13" letter-spacing="1.8">CINESEEKER / 01</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-label="CineSeeker. Az gezin. İyi izle. İzlemeye değer."><rect width="1280" height="640" fill="#0A0A0A"/>
+<path d="M56 126H1224 M56 544H1224 M880 158V512" stroke="#F4F4EF" stroke-opacity=".3"/>
+<g fill="#F4F4EF" font-family="Courier New,Courier,monospace">
+<text x="56" y="86" font-size="34" font-weight="700" letter-spacing="-2">CINE/SEEKER</text>
+<text x="1224" y="80" text-anchor="end" font-size="15">BAĞIMSIZ YAYIN REHBERİ / TR</text>
+<text x="56" y="195" font-size="16" fill="#FF5C29">AZ GEZİN. İYİ İZLE.</text>
+<text x="56" y="493" font-size="18">FİLM. DİZİ. SENİN PLATFORMLARIN.</text>
+<text x="56" y="589" font-size="14">SWIFTUI / NATIVE iOS</text>
+<text x="1224" y="589" text-anchor="end" font-size="14">KEŞFET / KAYDET / İZLE</text>
 </g>
-<g transform="translate(882 213) scale(2.65)"><path d="M 82 20 L 36 20 C 24 20 18 26 18 38 C 18 50 24 56 36 56 L 64 56 C 69 56 72 59 72 64 C 72 69 69 72 64 72 L 30 72 L 18 84 L 64 84 C 77 84 84 77 84 64 C 84 51 77 44 64 44 L 36 44 C 32 44 30 42 30 38 C 30 34 32 32 36 32 L 70 32 Z" fill="#FF8534"/></g></svg>
+<g fill="#F4F4EF" font-family="Helvetica Neue,Arial,sans-serif" font-weight="900" font-size="98" letter-spacing="-5">
+<text x="49" y="320">İZLEMEYE</text><text x="49" y="422">DEĞER.</text>
+</g>
+<text x="901" y="395" font-family="Helvetica Neue,Arial,sans-serif" font-size="260" font-weight="700" letter-spacing="-20" fill="#F4F4EF">C/</text>
+<path d="M928 455H1198" stroke="#FF5C29" stroke-width="9"/></svg>

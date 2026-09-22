@@ -36,12 +36,12 @@ struct SubscriptionsView: View {
                             withAnimation(reduceMotion ? nil : .snappy(duration: 0.25)) { storage.toggle(provider) }
                         } label: {
                             VStack(spacing: 12) {
-                                PosterImage(path: provider.logoPath, size: "w185").frame(width: 56, height: 56).clipShape(RoundedRectangle(cornerRadius: 14))
+                                PosterImage(path: provider.logoPath, size: "w185").frame(width: 56, height: 56).clipShape(Rectangle())
                                 Text(provider.providerName).font(.headline).multilineTextAlignment(.center)
                                 Label(selected ? "Abonesiniz" : "Seç", systemImage: selected ? "checkmark.circle.fill" : "plus.circle").font(.caption).foregroundStyle(selected ? CineTheme.success : .secondary)
                             }.padding(20).frame(maxWidth: .infinity, minHeight: 155)
-                                .background(selected ? Color.green.opacity(0.08) : CineTheme.surface, in: RoundedRectangle(cornerRadius: 20))
-                                .overlay(RoundedRectangle(cornerRadius: 20).stroke(selected ? CineTheme.success : CineTheme.border))
+                                .background(selected ? Color.green.opacity(0.08) : CineTheme.surface, in: Rectangle())
+                                .overlay(Rectangle().stroke(selected ? CineTheme.success : CineTheme.border))
                         }.buttonStyle(.plain).accessibilityLabel("\(provider.providerName), \(selected ? "abonesiniz, kaldır" : "abonelik ekle")")
                     }
                 }
