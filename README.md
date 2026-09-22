@@ -45,10 +45,14 @@ Ana sayfadaki tek dokunuşla, daha önce sevdiğin hikâyelerden yeni bir film b
 
 ## Uygulamadan
 
+**1.3 / Portreler.** Bir oyuncunun yüzünden başka bir filme, bir yönetmenin adından bütün filmografisine geç. Katkı türünü seç, film ve dizileri ayır, adıyla ara veya tarihe göre sırala. Aynı yapımdaki roller tek kartta birleşir. Türkçe biyografi bulunmadığında İngilizce metin ayrıca belirtilir.
+
+Detay sayfasındaki fragman ve bağlantılı yapımlar keşfi devam ettirir. Sinema dergisini anımsatan italik başlıklar ve siyah-beyaz portreler, keskin ve sade arayüzü tamamlar.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/docs/screenshots/01-Discover.png" width="30%" alt="CineSeeker Keşfet ekranı" />
-  <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/docs/screenshots/02-Search.png" width="30%" alt="Film ve dizi araması" />
-  <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/docs/screenshots/05-Platforms.png" width="30%" alt="Platform aboneliği tercihleri" />
+  <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/docs/screenshots/10-Person.png" width="30%" alt="Yönetmen portresi ve filmografisi" />
+  <img src="https://raw.githubusercontent.com/projectcagla/cineseeker/feat/native-ios/docs/screenshots/12-Detail.png" width="30%" alt="Film detayları ve fragman" />
 </p>
 
 Gerçek uygulamadan, iPhone / iOS 27 simülatörü. Katalog görselleri TMDB kaynaklıdır.
@@ -74,7 +78,7 @@ Mobil uygulamaya eklenen ortak okuma token’ı dağıtılan paketten çıkarıl
 
 Cloud ayarları Apple hesabında tutulur. `TMDB_READ_TOKEN` Xcode Cloud’da **Secret** olarak tanımlanır; imzalama Xcode Cloud tarafından yönetilir. İlk TestFlight sürümünün çalıştığı hesap sahibi tarafından doğrulanmıştır. Her yeni sürümün durumu ayrıca Cloud raporundan takip edilmelidir.
 
-[Dağıtım rehberi](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/README.md#xcode-cloud-ile-otomatik-testflight) · [1.2.0 değişiklikleri](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/CHANGELOG.md)
+[Dağıtım rehberi](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/README.md#xcode-cloud-ile-otomatik-testflight) · [1.3.0 değişiklikleri](https://github.com/projectcagla/cineseeker/blob/feat/native-ios/ios/CHANGELOG.md)
 
 ## Kod haritası
 
@@ -86,7 +90,7 @@ ios/
     Core/               Ağ, görüntü önbelleği, SwiftData, tasarım sistemi
     Domain/ + Models/   Katalog sözleşmeleri ve veri modelleri
     Data/               Canlı TMDB deposu
-    Features/           Keşfet, arama, detay, liste, platformlar, ayarlar
+    Features/           Keşfet, öneri, kişi/film detayları, arama, liste, ayarlar
   CineSeekerTests/       Veri, ağ ve hata senaryoları
   CineSeekerUITests/     Ekranlar arası gezinme ve ekran görüntüleri
   ci_scripts/           Xcode Cloud hazırlığı
