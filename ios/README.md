@@ -55,7 +55,19 @@ xcodebuild archive -project CineSeeker.xcodeproj -scheme CineSeeker \
 
 İkinci komutun imzasız arşivi TestFlight'a yüklenemez. Son yerel sonuçlar ve canlı test sınırları [VALIDATION.md](VALIDATION.md) içindedir. Ağ yanıtı örnekleri yalnızca test hedefinde kullanılır; uygulama canlı TMDB istemcisidir.
 
-## TestFlight hazırlığı
+## Xcode Cloud ile otomatik TestFlight
+
+Xcode Cloud ürünü Apple hesabına ve `projectcagla/cineseeker` GitHub deposuna bağlandı. Uygulama kaydı: `6814588419`; Bundle ID: `com.projectcagla.cineseeker`; takım: `9PF6U63MV3`.
+
+Hedef iş akışı **CineSeeker TestFlight**: `feat/native-ios` dalındaki değişiklik → Xcode 27 (27A266a) → zorunlu iOS 27 testleri → Release arşivi → dahili TestFlight grubu. Bu dal dışındaki değişiklikler bu iş akışını tetiklemez. TestFlight yeni bir uygulama derlemesi dağıtır; kurulu uygulamanın kodu anında değişmez. Test cihazında TestFlight otomatik güncellemeleri açılabilir.
+
+`ios/ci_scripts/ci_post_clone.sh`, Cloud Environment bölümündeki **Secret** türündeki `TMDB_READ_TOKEN` değerini Git dışında kalan `Config/Config.xcconfig` dosyasına aktarır. Anahtarı loglara yazmaz; eksik/bozuk değerle derlemeyi durdurur. Xcode Cloud imzalamayı Apple hesabı üzerinden yönetir; bu yol için Fastlane match deposu veya App Store Connect API anahtarı gerekmez.
+
+Kurulumun canlı durumu [VALIDATION.md](VALIDATION.md) içindedir. Cloud iş akışı ayarları Apple’da tutulur; depodaki `xcshareddata/xcodecloud/manifest.json` ürün bağlantısını taşır. Yalnızca bu dosyayı kopyalamak başka hesapta iş akışı oluşturmaz.
+
+Apple belgeleri: [özel derleme betikleri](https://developer.apple.com/documentation/xcode/writing-custom-build-scripts), [TestFlight dağıtımı](https://developer.apple.com/documentation/xcode/distributing-your-xcode-cloud-builds-through-testflight).
+
+## Alternatif: elle Fastlane dağıtımı
 
 1. Apple Developer üyeliğini ve sözleşmeleri tamamlayın. Identifiers bölümünde `com.projectcagla.cineseeker` Bundle ID'sini kaydedin; App Store Connect'te aynı kimlikle yeni iOS uygulaması oluşturun. Benzersizlik Apple tarafından doğrulanır.
 2. App Store Connect → Users and Access → Integrations bölümünden sertifika/profil yönetimine yetkili bir **Team API Key** oluşturun. `.p8` dosyasını depoya koymayın. Team ID, Apple Developer üyelik bilgilerindedir.
