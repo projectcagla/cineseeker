@@ -50,7 +50,7 @@ struct SearchView: View {
                 .onSubmit(of: .search) { storage.remember(model.query) }
                 .task(id: "\(model.query)|\(model.media.rawValue)|\(model.genre ?? 0)") { await model.search() }
                 .task(id: model.media) { model.genre = nil; await model.loadGenres() }
-                .navigationDestination(for: Movie.self) { movie in MovieDetailView(movie: movie).onAppear { storage.remember(model.query) } }
+                .discoveryDestinations { storage.remember(model.query) }
         }
     }
 }

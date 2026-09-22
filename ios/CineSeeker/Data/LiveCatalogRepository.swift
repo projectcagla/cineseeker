@@ -51,7 +51,7 @@ struct LiveCatalogRepository: CatalogRepository {
                 for (offset, movie) in chunk.enumerated() {
                     group.addTask {
                         var enriched = movie
-                        do { enriched.providersTr = try await offers(movie) }
+                        do { enriched.providersTr = try await offers(movie); enriched.providersError = false }
                         catch { try Task.checkCancellation(); enriched.providersError = true }
                         return (offset, enriched)
                     }
@@ -65,10 +65,10 @@ struct LiveCatalogRepository: CatalogRepository {
         return MoviePage(results: movies, page: page.page, totalPages: min(500, page.totalPages))
     }
     func detail(_ movie: Movie) async throws -> MovieDetail {
-        async let details: MovieDetail = network.request(.init(path: "\(movie.kind.rawValue)/\(movie.id)", query: ["append_to_response": "credits"]))
+        async let details: MovieDetail = network.request(.init(path: "\(movie.kind.rawValue)/\(movie.id)", query: ["append_to_response": "credits,videos,recommendations", "include_video_language": "tr,en,null"]))
         async let availability = offers(movie)
         var result = try await details
-        do { result.providersTr = try await availability }
+        do { result.providersTr = try await availability; result.providersError = false }
         catch {
             try Task.checkCancellation()
             result.providersError = true

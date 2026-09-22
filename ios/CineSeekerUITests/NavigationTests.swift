@@ -2,6 +2,55 @@ import XCTest
 import CoreGraphics
 
 final class NavigationTests: XCTestCase {
+    @MainActor func testLivePersonFilmographyRoundTrip() throws {
+        guard ProcessInfo.processInfo.environment["CINESEEKER_LIVE_UI"] == "1" else {
+            throw XCTSkip("Opt-in live TMDB verification requires a configured read token.")
+        }
+        continueAfterFailure = false
+        let app = XCUIApplication()
+        if ProcessInfo.processInfo.environment["CINESEEKER_LIVE_LARGE_TEXT"] == "1" {
+            app.launchArguments = ["-UIPreferredContentSizeCategoryName", "UICTContentSizeCategoryAccessibilityXXXL"]
+        }
+        app.launch()
+        XCTAssertTrue(tab("Ara", in: app).waitForExistence(timeout: 10))
+        tab("Ara", in: app).tap()
+        let search = app.searchFields.firstMatch
+        XCTAssertTrue(search.waitForExistence(timeout: 5))
+        search.tap(); search.typeText("Fight Club\n")
+        let film = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@ AND label ENDSWITH %@", "Dövüş Kulübü, 1999", "ayrıntılar")).firstMatch
+        XCTAssertTrue(film.waitForExistence(timeout: 45))
+        film.tap()
+        let director = app.buttons["person-7467"]
+        for _ in 0..<12 {
+            if director.exists && director.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(director.waitForExistence(timeout: 10))
+        director.tap()
+        XCTAssertTrue(app.navigationBars["David Fincher"].waitForExistence(timeout: 10))
+        let filmographySearch = app.textFields["filmographySearch"]
+        XCTAssertTrue(filmographySearch.waitForExistence(timeout: 45))
+        capture(app, "10-Person")
+        for _ in 0..<8 {
+            if filmographySearch.isHittable { break }
+            app.swipeUp()
+        }
+        filmographySearch.tap(); filmographySearch.typeText("Fight Club\n")
+        app.swipeUp()
+        let credit = app.buttons.matching(NSPredicate(format: "label BEGINSWITH %@ AND label ENDSWITH %@", "Dövüş Kulübü, 1999", "ayrıntılar")).firstMatch
+        XCTAssertTrue(credit.waitForExistence(timeout: 5))
+        capture(app, "11-Filmography")
+        credit.tap()
+        XCTAssertTrue(app.buttons["İçeriği paylaş"].waitForExistence(timeout: 5))
+        capture(app, "12-Detail")
+        let related = app.staticTexts["Hikâye burada bitmesin"]
+        for _ in 0..<20 {
+            if related.exists && related.isHittable { break }
+            app.swipeUp()
+        }
+        XCTAssertTrue(related.exists)
+        capture(app, "13-Related")
+    }
     @MainActor func testCoreNavigationAndScreenshots() throws {
         continueAfterFailure = false
         let app = XCUIApplication()

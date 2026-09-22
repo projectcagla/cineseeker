@@ -22,7 +22,8 @@ Simülatörde Apple üyeliği veya Team ID gerekmez. TMDB token'ı yoksa uygulam
 | Yeni Çıkanlar | Son 180 günde çıkmış, Türkiye'de yayın seçeneği olan içerikler; platforma yeni eklenme tarihi değildir |
 | Sana bir film | 7–10 puanlı veya puansız izlenmiş en fazla üç filmden TMDB önerileri; tekrar/düşük puan eleme ve isteğe bağlı abonelik filtresi |
 | Arama | 300 ms beklemeli arama, film/dizi ve tür filtreleri, yerel geçmiş |
-| Ayrıntılar | Özet, türler, oyuncular, süre/sezon, Türkiye yayın seçenekleri |
+| Ayrıntılar | Özet, türler, oyuncular, süre/sezon, Türkiye yayın seçenekleri; fragman ve bağlantılı yapımlar |
+| Kişiler | Oyuncu/yönetmen/senarist portresi, biyografi, birleşik film/dizi filmografisi; katkı, arama ve tarih filtreleri |
 | İzleme listesi | `want`, `watching`, `watched`; 1–10 puan veya boş; kart/liste görünümü; metin arama ve sıralama |
 | Çevrimdışı | Kaydedilen liste ve tercihler açılır; daha önce önbelleğe alınmamış afişler için nötr görsel kullanılır |
 | Ayarlar | Platform seçimi, JSON paylaşımı, arama geçmişini ve tüm yerel kişisel verileri silme |
@@ -55,6 +56,10 @@ xcodebuild archive -project CineSeeker.xcodeproj -scheme CineSeeker \
 ```
 
 İkinci komutun imzasız arşivi TestFlight'a yüklenemez. Birim testlerine ek olarak iPhone/iPad temel gezinme ve büyük yazı kontrolleri paylaşılan şemaya dahildir. Son yerel sonuçlar ve canlı test sınırları [VALIDATION.md](VALIDATION.md) içindedir. Ağ yanıtı örnekleri yalnızca test hedefinde kullanılır; uygulama canlı TMDB istemcisidir.
+
+`testLivePersonFilmographyRoundTrip`, gerçek TMDB verisiyle Dövüş Kulübü → David Fincher → filmografi → film geçişini sınar. Bu ek test, test çalıştırıcısının ortamında `CINESEEKER_LIVE_UI=1` tanımlandığında çalışır; geçerli yerel token ve internet gerektirir. Kimlik bilgisi olmayan standart CI çalışmasında açık bir atlama gerekçesiyle geçilir; diğer testler çalışmaya devam eder.
+
+Kişi verisi için [TMDB kişi ayrıntıları](https://developer.themoviedb.org/reference/person-details) ve [birleşik filmografi](https://developer.themoviedb.org/reference/person-combined-credits) kullanılır. Fragmanlar TMDB video verisinden güvenli YouTube adreslerine açılır; video site ve kimlikleri doğrulanır.
 
 ## Xcode Cloud ile otomatik TestFlight
 

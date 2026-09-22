@@ -3,6 +3,16 @@ import SwiftData
 @testable import CineSeeker
 
 final class RegressionTests: XCTestCase {
+    @MainActor func testSparseFilmographyUpdatesKeepCachedOffersButConfirmedEmptyClearsThem() throws {
+        let store = try makeStore()
+        let provider = Provider(providerId: 8, providerName: "Netflix", logoPath: nil)
+        store.save(Movie(id: 77, title: "Film", posterPath: "/poster.jpg", providersTr: Availability(flatrate: [provider]), providersError: false), status: .want)
+        store.save(Movie(id: 77, title: "Yeni ad"), status: .watched, rating: 8)
+        XCTAssertEqual(store.titles.first?.movie?.providersTr?.flatrate?.first?.id, 8)
+        XCTAssertEqual(store.titles.first?.movie?.posterPath, "/poster.jpg")
+        store.save(Movie(id: 77, title: "Yeni ad", providersError: false), status: .watched, rating: 8)
+        XCTAssertNil(store.titles.first?.movie?.providersTr)
+    }
     func testTurkishSearchSupportsUnaccentedInput() {
         XCTAssertEqual("İSTANBUL".searchKey, "istanbul")
         XCTAssertEqual("IŞIK".searchKey, "isik")

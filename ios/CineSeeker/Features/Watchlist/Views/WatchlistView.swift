@@ -52,7 +52,7 @@ struct WatchlistView: View {
                         Button { grid.toggle() } label: { Image(systemName: grid ? "list.bullet" : "square.grid.2x2") }.accessibilityLabel(grid ? "Liste görünümü" : "Kart görünümü")
                     }
                 }
-                .navigationDestination(for: Movie.self) { MovieDetailView(movie: $0) }
+                .discoveryDestinations()
         }
     }
     private var libraryHeader: some View {

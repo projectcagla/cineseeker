@@ -69,7 +69,7 @@ import Observation
                         let allowed = Set(providers.map(\.id))
                         guard availability.flatrate?.contains(where: { allowed.contains($0.id) }) == true else { continue }
                     }
-                    var movie = candidate.movie; movie.providersTr = availability
+                    var movie = candidate.movie; movie.providersTr = availability; movie.providersError = false
                     shown.insert(movie.key)
                     pick = RecommendationPick(movie: movie, reason: candidate.reason)
                     return

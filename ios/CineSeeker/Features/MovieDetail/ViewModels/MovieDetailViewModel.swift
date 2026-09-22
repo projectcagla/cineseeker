@@ -23,4 +23,19 @@ import Observation
         // A successful response without TR offers must replace older saved availability.
         return detail.providersTr
     }
+    var trailer: CatalogVideo? {
+        detail?.videos?.results.filter { $0.url != nil }.sorted {
+            func priority(_ video: CatalogVideo) -> Int {
+                (video.official == true ? 4 : 0) + (video.iso6391 == "tr" ? 2 : 0) + (video.type == "Trailer" ? 1 : 0)
+            }
+            return priority($0) > priority($1)
+        }.first
+    }
+    func related(to movie: Movie) -> [Movie] {
+        var seen = Set([movie.key])
+        return (detail?.recommendations?.results ?? []).compactMap {
+            var item = $0; item.mediaType = movie.kind
+            return seen.insert(item.key).inserted ? item : nil
+        }
+    }
 }

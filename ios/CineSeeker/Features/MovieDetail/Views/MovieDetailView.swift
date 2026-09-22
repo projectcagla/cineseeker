@@ -5,6 +5,14 @@ struct MovieDetailView: View {
     @Environment(\.dynamicTypeSize) private var typeSize
     @State private var model = MovieDetailViewModel()
     private var availability: Availability? { model.availability(for: movie) }
+    private var resolvedMovie: Movie {
+        var result = movie
+        if let detail = model.detail {
+            result.overview = detail.overview?.nonEmpty ?? movie.overview
+            if detail.providersError == false { result.providersTr = detail.providersTr; result.providersError = false }
+        }
+        return result
+    }
     private var sharingURL: URL { URL(string: "https://www.themoviedb.org/\(movie.kind.rawValue)/\(movie.id)")! }
     var body: some View {
         ScrollView {
@@ -12,7 +20,13 @@ struct MovieDetailView: View {
                 header
                 VStack(alignment: .leading, spacing: 28) {
                     metadata
-                    WatchMenu(movie: movie)
+                    if let trailer = model.trailer, let url = trailer.url {
+                        Link(destination: url) {
+                            HStack { Image(systemName: "play.fill"); Text("FRAGMANI İZLE"); Spacer(); Image(systemName: "arrow.up.right") }
+                        }.buttonStyle(CineButtonStyle(prominent: false))
+                            .accessibilityHint("YouTube’da açılır")
+                    }
+                    WatchMenu(movie: resolvedMovie)
                     if let item = storage.item(movie) { rating(item) }
                     if model.loading { ProgressView("Ayrıntılar yükleniyor…") }
                     if let error = model.error { StatusPanel(title: "Ayrıntılar yenilenemedi", message: error, icon: "wifi.exclamationmark") { Task { await model.load(movie) } } }
@@ -23,6 +37,7 @@ struct MovieDetailView: View {
                             .foregroundStyle(.secondary).lineSpacing(5).textSelection(.enabled)
                     }
                     if let credits = model.detail?.credits { cast(credits) }
+                    if !model.related(to: movie).isEmpty { related }
                     Text("Film ve dizi bilgileri TMDB tarafından sağlanır.").font(.caption2).foregroundStyle(.secondary)
                 }.padding(.horizontal, 20).padding(.bottom, 32)
             }.frame(maxWidth: 900).frame(maxWidth: .infinity)
@@ -45,7 +60,7 @@ struct MovieDetailView: View {
                 }
                 VStack(alignment: .leading, spacing: 8) {
                     Text(movie.kind == .movie ? "FİLM" : "DİZİ").font(.caption.bold()).tracking(2).foregroundStyle(CineTheme.accent)
-                    Text(movie.displayTitle).font(.cineTitle).fixedSize(horizontal: false, vertical: true)
+                    Text(movie.displayTitle).font(.cineEditorial).fixedSize(horizontal: false, vertical: true)
                     if movie.original != movie.displayTitle { Text(movie.original).font(.subheadline).foregroundStyle(.secondary) }
                     if !movie.year.isEmpty { Text(movie.year).font(.subheadline).foregroundStyle(.secondary) }
                 }
@@ -81,14 +96,14 @@ struct MovieDetailView: View {
             }
             LazyVGrid(columns: [GridItem(.adaptive(minimum: 44), spacing: 8)], spacing: 8) {
                 ForEach(1...10, id: \.self) { value in
-                    Button { storage.save(movie, status: item.status, rating: value) } label: {
+                    Button { storage.save(resolvedMovie, status: item.status, rating: value) } label: {
                         Text("\(value)").font(.subheadline.weight(.semibold)).frame(maxWidth: .infinity, minHeight: 44)
                             .foregroundStyle(item.rating == value ? Color.black : .primary)
                             .background(item.rating == value ? CineTheme.accent : CineTheme.surface, in: Rectangle())
                     }.buttonStyle(.plain).accessibilityLabel("\(value) / 10 puan ver").accessibilityAddTraits(item.rating == value ? .isSelected : [])
                 }
             }
-            if item.rating != nil { Button("Puanı kaldır") { storage.save(movie, status: item.status) }.font(.caption).frame(minHeight: 44) }
+            if item.rating != nil { Button("Puanı kaldır") { storage.save(resolvedMovie, status: item.status) }.font(.caption).frame(minHeight: 44) }
         }
     }
     private var streaming: some View {
@@ -125,23 +140,58 @@ struct MovieDetailView: View {
         }
     }
     @ViewBuilder private func cast(_ credits: Credits) -> some View {
-        let directors = Array(Set(credits.crew.filter { $0.job == "Director" }.map(\.name))).sorted()
+        let directors = unique(credits.crew.filter { $0.job == "Director" })
         if !directors.isEmpty {
-            VStack(alignment: .leading, spacing: 8) { Text("Yönetmen").font(.headline); Text(directors.joined(separator: ", ")).foregroundStyle(.secondary) }
+            SectionHeading(title: "Yönetmen", subtitle: "İmzasını taşıyan diğer hikâyeler.")
+            people(directors, role: .directing)
+        }
+        if let creators = model.detail?.createdBy, !creators.isEmpty {
+            SectionHeading(title: "Dizinin yaratıcıları")
+            people(unique(creators))
+        }
+        let writers = unique(credits.crew.filter { ["Screenplay", "Writer", "Story"].contains($0.job ?? "") })
+        if !writers.isEmpty {
+            SectionHeading(title: "Hikâyenin yazarları")
+            people(writers, role: .writing)
         }
         if !credits.cast.isEmpty {
-            SectionHeading(title: "Oyuncular")
-            ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(alignment: .top, spacing: 16) {
-                    ForEach(Array(credits.cast.prefix(25).enumerated()), id: \.offset) { _, person in
+            SectionHeading(title: "Oyuncular", subtitle: "Bir yüze dokun, filmografisini keşfet.")
+            people(Array(unique(credits.cast).prefix(30)))
+        }
+    }
+    private func people(_ people: [Person], role: FilmographyRole = .all) -> some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(alignment: .top, spacing: 16) {
+                ForEach(people) { person in
+                    NavigationLink(value: PersonRoute(person: person, role: role)) {
                         VStack(alignment: .leading, spacing: 7) {
-                            PosterImage(path: person.profilePath, size: "w185").frame(width: 104, height: 136).clipShape(Rectangle())
+                            PosterImage(path: person.profilePath, size: "w185").frame(width: 112, height: 148).saturation(0)
+                                .overlay(alignment: .bottomTrailing) {
+                                    Image(systemName: "arrow.up.right").font(.caption.bold()).padding(8).background(CineTheme.background)
+                                }
                             Text(person.name).font(.subheadline.weight(.semibold))
                             if let character = person.character?.nonEmpty { Text(character).font(.caption).foregroundStyle(.secondary) }
-                        }.frame(width: 104, alignment: .leading).accessibilityElement(children: .combine)
+                        }.frame(width: 112, alignment: .leading)
+                    }.buttonStyle(.plain).accessibilityLabel("\(person.name), filmografisini aç")
+                        .accessibilityIdentifier("person-\(person.id)")
+                }
+            }
+        }
+    }
+    private var related: some View {
+        VStack(alignment: .leading, spacing: 18) {
+            SectionHeading(title: "Hikâye burada bitmesin", subtitle: "Bu yapımla bağlantılı TMDB önerileri.")
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(alignment: .top, spacing: 16) {
+                    ForEach(Array(model.related(to: movie).prefix(12)), id: \.key) { related in
+                        MovieCard(movie: related).frame(width: typeSize.isAccessibilitySize ? 280 : 160)
                     }
                 }
             }
         }
+    }
+    private func unique(_ people: [Person]) -> [Person] {
+        var seen = Set<Int>()
+        return people.filter { seen.insert($0.id).inserted }
     }
 }

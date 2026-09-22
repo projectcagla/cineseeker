@@ -17,7 +17,7 @@ actor NetworkManager {
         guard !endpoint.path.contains("://"), !endpoint.path.contains(".."), !endpoint.path.hasPrefix("/") else { throw NetworkError.invalidResponse }
         let base = URL(string: "https://api.themoviedb.org/3/")!
         var components = URLComponents(url: base.appendingPathComponent(endpoint.path), resolvingAgainstBaseURL: false)!
-        let params = endpoint.query.merging(["language": "tr-TR"]) { _, new in new }
+        let params = endpoint.query.merging(["language": "tr-TR"]) { requested, _ in requested }
         components.queryItems = params.sorted { $0.key < $1.key }.map { URLQueryItem(name: $0.key, value: $0.value) }
         guard let url = components.url else { throw NetworkError.invalidResponse }
         var request = URLRequest(url: url)

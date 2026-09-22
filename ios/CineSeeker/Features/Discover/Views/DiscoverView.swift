@@ -10,9 +10,12 @@ struct DiscoverView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 26) {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("01 / KEŞİF").font(.cineLabel).tracking(2).foregroundStyle(CineTheme.accent)
-                        Text("AZ GEZİN.\nİYİ İZLE.").font(.cineTitle).tracking(-1.5)
+                    VStack(alignment: .leading, spacing: 12) {
+                        EditorialEyebrow(index: "01 / KEŞİF", caption: "SİNEMA · DİZİ · TÜRKİYE")
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text("AZ GEZİN.").font(.cineTitle).tracking(-1.5)
+                            Text("İyi izle.").font(.cineEditorial)
+                        }.accessibilityElement(children: .combine)
                         Text("Türkiye için bağımsız yayın rehberi.").font(.subheadline).foregroundStyle(.secondary)
                     }.padding(.top, 12)
                     Button { showRecommendation = true } label: {
@@ -62,7 +65,7 @@ struct DiscoverView: View {
                             .accessibilityLabel("Platform aboneliklerini düzenle")
                     }
                 }
-                .navigationDestination(for: Movie.self) { MovieDetailView(movie: $0) }
+                .discoveryDestinations()
                 .task(id: taskID) { await reload() }.refreshable { await reload() }
                 .sheet(isPresented: $showRecommendation) { RecommendationView() }
                 .sheet(isPresented: $showPlatforms) { NavigationStack { SubscriptionsView().toolbar { Button("Bitti") { showPlatforms = false } } } }

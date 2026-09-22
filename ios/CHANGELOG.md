@@ -1,5 +1,17 @@
 # Sürüm notları
 
+## 1.3.0
+
+- Minimal brutalist kimliğe editoryal tipografi, italik serif vurgular, siyah-beyaz portreler ve daha dengeli bölüm aralıkları eklendi. CINE/SEEKER logosu korundu.
+- Oyuncu, yönetmen, senarist ve dizi yaratıcısı kartları kişi sayfasına açılır.
+- Biyografi, doğum bilgileri ve film/dizi filmografisi; katkı türü filtresi, metin araması ve popülerlik/tarih sıralaması.
+- Aynı yapımdaki birden fazla katkı tek kartta birleştirilir; film ve dizilerin aynı sayısal kimlikleri birbirine karışmaz.
+- Türkçe biyografi yoksa açıkça belirtilen İngilizce metin gösterilir. Biyografi isteği başarısız olsa da filmografi kullanılabilir.
+- Film ve dizi detayında YouTube fragmanı, bağlantılı yapımlar ve kişi paylaşımı.
+- Film → kişi → film geçişleri ortak gezinme sistemiyle çalışır; filmografi kartlarından izleme listesine hızlı ekleme korunur.
+- Eksik filmografi verisinin önceden kaydedilmiş afiş ve yayın seçeneklerini silmesi önlendi; doğrulanmış boş yayın yanıtı eski seçenekleri temizler.
+- Filmografi, biyografi hataları, fragman güvenliği ve önbellek güncellemeleri için testler; canlı katalogla kişi gezinme testi.
+
 ## 1.2.0
 
 - Minimal brutalist arayüz: düz siyah-beyaz yüzeyler, keskin kartlar, güçlü tipografi, çizgili filtreler ve sınırlı turuncu vurgu.

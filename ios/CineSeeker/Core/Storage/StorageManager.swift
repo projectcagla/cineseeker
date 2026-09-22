@@ -45,7 +45,19 @@ import Observation
         do {
             guard rating == nil || (1...10).contains(rating!) else { return }
             if let row = item(movie) {
-                row.movieData = try JSONEncoder().encode(movie)
+                var updated = movie
+                if let previous = row.movie {
+                    // Filmography and related-title responses omit offers and sometimes artwork.
+                    // Only a confirmed provider response may clear previously cached offers.
+                    if movie.providersTr == nil && movie.providersError != false {
+                        updated.providersTr = previous.providersTr
+                        updated.providersError = movie.providersError ?? previous.providersError
+                    }
+                    updated.posterPath = movie.posterPath ?? previous.posterPath
+                    updated.backdropPath = movie.backdropPath ?? previous.backdropPath
+                    updated.overview = movie.overview?.nonEmpty ?? previous.overview
+                }
+                row.movieData = try JSONEncoder().encode(updated)
                 row.statusValue = status.rawValue; row.rating = rating; row.updatedAt = Date()
             }
             else { context.insert(try SavedTitle(owner: owner, movie: movie, status: status, rating: rating)) }

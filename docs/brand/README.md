@@ -20,7 +20,8 @@ Kimlik tipografiktir: tam yazım **CINE/SEEKER**, dar alanlarda **C/**. Eğik ç
 ## Görsel kurallar
 
 - Zemin `#0A0A0A`, yazı `#F4F4EF`, vurgu `#FF5C29`.
-- Tipografi: koyu grotesk başlıklar; teknik etiketlerde monospaced sistem yazısı. iOS’ta Dynamic Type korunur.
+- Tipografi: koyu grotesk başlıklar; kısa editoryal vurgularda italik serif; bilgi etiketlerinde monospaced sistem yazısı. iOS’ta Dynamic Type korunur. Üç üslup aynı satırda karıştırılmaz.
+- Portreler siyah-beyaz, film afişleri özgün renklerindedir. İnce çizgiler, numaralı bölüm etiketleri ve kontrollü boşluklar sinema dergisi düzenini taşır.
 - Köşeler keskin, yüzeyler düz, ayırıcı çizgiler incedir. Dekoratif gölge, parlama ve renkli degrade kullanılmaz. Afişin üzerinde metin okunurluğu için siyah geçiş kullanılabilir.
 - Ana işlem siyah-beyaz bloktur. Turuncu kısa vurgu ve aktif durumlar içindir; yeşil yalnızca abonelik durumunu belirtir.
 - Native gezinme, arama ve paylaşım kontrolleri işletim sisteminin erişilebilir davranışını korur.

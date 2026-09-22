@@ -32,10 +32,22 @@ struct SectionHeading: View {
     let title: String
     var subtitle: String? = nil
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            Text(title.uppercased(with: Locale(identifier: "tr_TR"))).font(.cineHeading)
+        VStack(alignment: .leading, spacing: 10) {
+            Rectangle().fill(CineTheme.border).frame(height: 1).accessibilityHidden(true)
+            Text(title).font(.cineHeading).tracking(-0.5)
             if let subtitle { Text(subtitle).font(.subheadline).foregroundStyle(.secondary) }
         }
+    }
+}
+struct EditorialEyebrow: View {
+    let index: String
+    let caption: String
+    var body: some View {
+        ViewThatFits(in: .horizontal) {
+            HStack { Text(index).foregroundStyle(CineTheme.accent); Spacer(minLength: 16); Text(caption).foregroundStyle(.secondary) }
+            VStack(alignment: .leading, spacing: 8) { Text(index).foregroundStyle(CineTheme.accent); Text(caption).foregroundStyle(.secondary) }
+        }.font(.cineLabel).tracking(1.5).padding(.bottom, 8)
+            .overlay(alignment: .bottom) { Rectangle().fill(CineTheme.border).frame(height: 1) }
     }
 }
 struct FilterChip: View {

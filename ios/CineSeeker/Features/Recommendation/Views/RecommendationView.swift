@@ -43,7 +43,7 @@ struct RecommendationView: View {
             }.cineBackground().navigationTitle("SANA BİR FİLM").navigationBarTitleDisplayMode(.inline)
                 .toolbar { ToolbarItem(placement: .topBarTrailing) { Button("Bitti") { dismiss() } } }
                 .task(id: "\(request):\(usePlatforms)") { await model.choose(library: storage.titles, providers: usePlatforms ? storage.selected : []) }
-                .navigationDestination(for: Movie.self) { MovieDetailView(movie: $0) }
+                .discoveryDestinations()
         }
     }
 }
