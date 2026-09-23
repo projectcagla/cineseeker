@@ -1,21 +1,31 @@
-import { MovieCard } from "@/components/features/movie-card";
+import { HomeMovieFeed } from "@/components/features/home-movie-feed";
 import { bg_augmentWithProviders, getNewInTr } from "@/lib/tmdb";
+import { getUserSubscribedProviders } from "@/app/actions/providers";
+import { getRecentProviderArrivals } from "@/lib/cron/get-new-arrivals";
 import { Suspense } from "react";
 
-async function MovieGrid() {
-  const data = await getNewInTr();
-  const movies = await bg_augmentWithProviders(data.results.slice(0, 18)); // Limit to 18 for grid symmetry
+export const dynamic = "force-dynamic";
 
-  if (movies.length === 0) {
+async function MovieGrid() {
+  const [data, userSubs, recentArrivals] = await Promise.all([
+    getNewInTr(),
+    getUserSubscribedProviders().catch(() => []),
+    getRecentProviderArrivals(18).catch(() => []),
+  ]);
+
+  const movies = await bg_augmentWithProviders(data.results.slice(0, 18));
+  const userSubscribedIds = userSubs.map((s) => s.providerId);
+
+  if (movies.length === 0 && recentArrivals.length === 0) {
     return <div className="text-center py-20 text-muted-foreground">Şu an gösterilecek içerik bulunamadı.</div>;
   }
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-x-4 gap-y-8">
-      {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} />
-      ))}
-    </div>
+    <HomeMovieFeed
+      initialMovies={movies}
+      userSubscribedIds={userSubscribedIds}
+      recentArrivals={recentArrivals}
+    />
   );
 }
 

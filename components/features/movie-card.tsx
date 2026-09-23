@@ -3,12 +3,14 @@ import Image from "next/image";
 import { Movie, WatchProviders } from "@/types";
 import { Star } from "lucide-react";
 import { ProviderBadge } from "./provider-badge";
+import { WatchlistButton } from "./watchlist-button";
 
 interface MovieCardProps {
     movie: Movie & { providers_tr?: WatchProviders | null };
+    userSubscribedIds?: number[];
 }
 
-export function MovieCard({ movie }: MovieCardProps) {
+export function MovieCard({ movie, userSubscribedIds = [] }: MovieCardProps) {
     const providers = movie.providers_tr?.flatrate?.slice(0, 3) || [];
     const hasMore = (movie.providers_tr?.flatrate?.length || 0) > 3;
 
@@ -33,9 +35,21 @@ export function MovieCard({ movie }: MovieCardProps) {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
                 {/* Rating Badge */}
-                <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded flex items-center gap-1 text-xs font-medium border border-white/10">
+                <div className="absolute top-2 right-2 bg-black/60 backdrop-blur-md px-1.5 py-0.5 rounded flex items-center gap-1 text-xs font-medium border border-white/10 z-10">
                     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
                     <span>{movie.vote_average.toFixed(1)}</span>
+                </div>
+
+                {/* Watchlist Quick Button */}
+                <div className="absolute top-2 left-2 z-10">
+                    <WatchlistButton
+                        movieId={movie.id}
+                        title={movie.title}
+                        posterPath={movie.poster_path}
+                        voteAverage={movie.vote_average ? movie.vote_average.toString() : null}
+                        releaseYear={movie.release_date ? new Date(movie.release_date).getFullYear().toString() : null}
+                        variant="compact"
+                    />
                 </div>
             </div>
 
@@ -55,7 +69,12 @@ export function MovieCard({ movie }: MovieCardProps) {
                                 key={p.provider_id}
                                 provider={p}
                                 size={24}
-                                className="ring-2 ring-background grayscale group-hover:grayscale-0 transition-all"
+                                isSubscribed={userSubscribedIds.includes(p.provider_id)}
+                                className={`ring-2 ring-background transition-all ${
+                                    userSubscribedIds.includes(p.provider_id)
+                                        ? "grayscale-0"
+                                        : "grayscale group-hover:grayscale-0"
+                                }`}
                             />
                         ))}
                         {hasMore && (

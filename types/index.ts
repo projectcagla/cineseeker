@@ -75,6 +75,11 @@ export interface WatchProviders {
     buy?: Provider[];
 }
 
+export type WatchProvidersResult =
+    | { status: "success"; data: WatchProviders }
+    | { status: "empty" }
+    | { status: "error"; error: string };
+
 export interface Person {
     id: number;
     name: string;
